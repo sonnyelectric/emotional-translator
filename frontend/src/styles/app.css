@@ -289,23 +289,62 @@
 }
 
 .transcript-panel {
-  min-height: 60vh;
+  --stage-h: max(360px, calc(100vh - 250px));
+  position: relative;
   display: flex;
   flex-direction: column;
 }
+/* One continuous transcript. It scrolls on its own; padding above and below lets the
+   newest line sit at mid-height, and App.tsx keeps it there while the reader follows. */
 .center-stage {
-  flex: 1;
+  height: var(--stage-h);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  /* Functional edge fade: older lines dissolve under the heading instead of being cut. */
+  mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 calc(100% - 48px), transparent 100%);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
   max-width: 1040px;
   margin: 0 auto;
-  padding: 48px clamp(16px, 4vw, 64px) 64px;
+  padding: calc(var(--stage-h) / 2 - 48px) clamp(16px, 4vw, 64px) calc(var(--stage-h) / 2 - 48px);
   font-size: var(--transcript-size);
   line-height: 1.9;
   text-align: center;
-  min-height: 48vh;
+}
+.center-stage:has(.idle-prompt) {
+  mask-image: none;
+  justify-content: center;
+  padding-block: 48px;
+  overflow: hidden;
+}
+.jump-latest {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  translate: -50% 0;
+  padding: 8px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition-property: background-color, border-color;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+.jump-latest:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .jump-latest:hover {
+    border-color: var(--text-faint);
+  }
 }
 .idle-prompt {
   display: flex;

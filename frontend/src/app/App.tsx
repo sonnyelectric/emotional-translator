@@ -4,8 +4,6 @@ import { applyEvent, expectResetAck, initialState, resetLocal, unbindTransport, 
 import {
   selectAnnotation,
   selectAnnotations,
-  selectAnnotationsForSegments,
-  selectCenterAndHistory,
   selectLatestScores,
 } from '../state/selectors';
 import { ReplayPlayer, type ReplayPhase } from '../replay/clock';
@@ -31,7 +29,6 @@ import {
 } from './visualBridge';
 import { SessionControls, type ControlState } from '../components/SessionControls';
 import { Notices } from '../components/Notices';
-import { TranscriptHistory } from '../components/TranscriptHistory';
 import { ReplayBanner } from '../components/ReplayBanner';
 import { cueFootnote } from '../replay/provenance';
 import { StatusPill, describeStatus } from '../components/StatusPill';
@@ -334,9 +331,6 @@ export function App() {
 
   // ---------- view data ----------
   const allAnnotations = useMemo(() => selectAnnotations(state), [state]);
-  const { center, history } = useMemo(() => selectCenterAndHistory(state.segments, 3), [state.segments]);
-  const centerAnnotations = useMemo(() => selectAnnotationsForSegments(allAnnotations, center), [allAnnotations, center]);
-  const historyAnnotations = useMemo(() => selectAnnotationsForSegments(allAnnotations, history), [allAnnotations, history]);
   const latestScores = useMemo(() => selectLatestScores(state), [state]);
   const inspected = useMemo(() => selectAnnotation(state, inspectId), [state, inspectId]);
   const { results: mismatch, status: mismatchStatus } = useMismatch(state.segments, allAnnotations, settings.mismatch);
@@ -348,6 +342,36 @@ export function App() {
   const replayEntry =
     mode === 'replay' ? manifest?.fixtures.find((f) => f.id === (loaded?.entry.id ?? fixtureId)) ?? null : null;
   const statusInfo = describeStatus({ mode, livePhase, status, replayPhase, error: state.error, localIssue });
+  // ---------- auto-scroll: one continuous transcript, newest line kept mid-screen ----------
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const [followLatest, setFollowLatest] = useState(true);
+  const followRef = useRef(true);
+  const onStageScroll = useCallback(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const follow = el.scrollHeight - el.scrollTop - el.clientHeight < 96;
+    if (follow !== followRef.current) {
+      followRef.current = follow;
+      setFollowLatest(follow);
+    }
+  }, []);
+  const scrollToLatest = useCallback(
+    (smooth: boolean) => {
+      const el = stageRef.current;
+      if (!el) return;
+      el.scrollTo({ top: el.scrollHeight, behavior: smooth && !settings.reducedMotion ? 'smooth' : 'auto' });
+    },
+    [settings.reducedMotion],
+  );
+  const jumpToLatest = useCallback(() => {
+    followRef.current = true;
+    setFollowLatest(true);
+    scrollToLatest(true);
+  }, [scrollToLatest]);
+  useEffect(() => {
+    if (followRef.current) scrollToLatest(false);
+  }, [state.segments, partial?.text, scrollToLatest]);
+
   const showIdlePrompt = !hasContent && (mode === 'live' ? !recording : replayPhase === 'replay_idle' || replayPhase === 'replay_loading');
 
   return (
@@ -423,7 +447,7 @@ export function App() {
           <div className="panel-head">
             <h2 id="transcript-title">{mode === 'live' ? 'Live transcript' : 'Replay transcript'}</h2>
           </div>
-          <div className="center-stage" data-testid="center-transcript">
+          <div className="center-stage" data-testid="center-transcript" ref={stageRef} onScroll={onStageScroll}>
             {showIdlePrompt ? (
               <div className="idle-prompt">
                 <svg className="idle-mic" viewBox="0 0 24 24" width="40" height="40" aria-hidden="true">
@@ -438,9 +462,9 @@ export function App() {
               </div>
             ) : (
               <TranscriptView
-                segments={center}
+                segments={state.segments}
                 partial={partial}
-                annotations={centerAnnotations}
+                annotations={allAnnotations}
                 settings={settings}
                 onInspect={setInspectId}
                 mismatch={effectiveMismatch}
@@ -448,18 +472,16 @@ export function App() {
               />
             )}
           </div>
+          {!followLatest && !showIdlePrompt ? (
+            <button type="button" className="jump-latest" onClick={jumpToLatest} data-testid="jump-latest">
+              Jump to latest
+            </button>
+          ) : null}
           <div className="sr-only" aria-live="polite">
             {lastCommitted ? lastCommitted.text : ''}
           </div>
         </section>
 
-        <TranscriptHistory
-          segments={history}
-          annotations={historyAnnotations}
-          settings={settings}
-          onInspect={setInspectId}
-          mismatch={effectiveMismatch}
-        />
       </main>
 
       <SessionControls

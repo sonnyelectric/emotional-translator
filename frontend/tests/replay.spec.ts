@@ -39,15 +39,19 @@ test.describe('G1 replay', () => {
     // Finish: seg-3..seg-5 centered, seg-4 plain, gold cloud on seg-5.
     await expect(page.getByTestId('status-pill')).toContainText('Replay finished', { timeout: 25_000 });
     const center = page.getByTestId('center-transcript');
-    await expect(center.locator('[data-segment-id]')).toHaveCount(3);
+    // One continuous transcript: every segment stays in the scrolling stage, newest in view.
+    await expect(center.locator('[data-segment-id]')).toHaveCount(5);
     await expect(center.locator('[data-annotation-id="a-seg-5"]')).toHaveAttribute('data-primary', 'happy');
     await expect(center.locator('[data-segment-id="seg-4"] [data-annotation-id]')).toHaveCount(0);
+    await expect(center.locator('[data-segment-id="seg-5"]')).toBeInViewport();
 
-    // History keeps seg-1, seg-2 and the finalized red annotation.
-    await page.getByTestId('history-toggle').click();
-    const history = page.getByTestId('history');
-    await expect(history.locator('[data-segment-id="seg-1"]')).toBeVisible();
-    await expect(history.locator('[data-annotation-id="a-seg-2"]')).toHaveAttribute('data-state', 'finalized');
+    // Older content is kept: scroll back up to seg-1 and the finalized red annotation.
+    await center.locator('[data-segment-id="seg-1"]').scrollIntoViewIfNeeded();
+    await expect(center.locator('[data-segment-id="seg-1"]')).toBeVisible();
+    await expect(center.locator('[data-annotation-id="a-seg-2"]')).toHaveAttribute('data-state', 'finalized');
+    await expect(page.getByTestId('jump-latest')).toBeVisible();
+    await page.getByTestId('jump-latest').click();
+    await expect(center.locator('[data-segment-id="seg-5"]')).toBeInViewport();
 
     // No mic, no WebSocket in Replay.
     const counts = await page.evaluate(() => {
