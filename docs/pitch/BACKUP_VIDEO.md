@@ -16,6 +16,6 @@ Record after the live smoke passes and the rehearsal is done. Screen-record with
 | 8 | 1:08-1:20 | Title card over a still of the architecture or the app: "ElevenLabs Scribe v3 Live: words + timing. emotion2vec+ Large: vocal tone, on this laptop. Backend aligns the two." | Read the card in one breath. | T |
 | 9 | 1:20-1:30 | Closing card: name, "Detected vocal cues are model estimates. Built with ElevenLabs Scribe v3 Live; emotion2vec+ via FunASR." | "Estimates, not feelings. Thank you." | D |
 
-Optional replay insert (only if live is flaky): switch to REPLAY, show the banner and fixture name for at least 2 seconds, then say "This segment is a saved-event replay, not live." Put a title card "REPLAY" over it.
+Optional replay insert (only if live is flaky): switch to REPLAY, show the banner and fixture name for at least 2 seconds, then read the provenance on the banner: "This segment is replay, not live. It is [a recorded live session of my voice, text and scores only / a hand-written synthetic example, not model output]." Put a title card "REPLAY" over it.
 
 Checklist before upload: all speech is yours; no API key or terminal secrets on screen; replay segments labeled; length 60-90 s; link added to `SUBMISSION.md`.

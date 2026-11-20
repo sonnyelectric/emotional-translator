@@ -89,8 +89,12 @@ Delivery rules:
 4. Everything fails: play the backup video.
 
 ## "If live fails" script (say it, do not hide it)
-"Live transcription is not cooperating right now. [Say what failed: the network, the mic, the backend.] I am switching to replay. This is a saved recording of events from a real run, played through the same interface, not live." (Press Stop if active, Reset, switch to REPLAY, play the named fixture. Point at the REPLAY banner and the provenance label.) "Same screen, same clouds. What you do not get in replay is me speaking to it live, which is why I wanted to show you that. You can see the jagged cloud on the angry line and the rounded one on the sad line." (The saved fixtures have no words-versus-voice line, so do not point at a badge in replay.)
-If the fixture is synthetic rather than recorded from a real session, say that: "This fixture was authored for testing, not recorded." Read the provenance shown in the UI and say exactly that. Never present replay as live.
+Prefer the recorded fixture (`replay_live_recorded`, banner reads "Recorded live session, <date> (text, timestamps, scores; no audio)") once it exists; record it with `RECORD_SESSION_EVENTS=shared/fixtures/replay_live_recorded.jsonl` (see `.env.example`), then run `npm --prefix frontend run check:fixtures` and `scripts/verify_replay.sh`. Read the banner first and say the matching line:
+
+- Recorded fixture: "Live transcription is not cooperating right now. [Say what failed: the network, the mic, the backend.] I am switching to replay. This is a recorded live session of my own voice from earlier today: the saved text, timestamps and model scores, no audio, played through the same interface. It is not live."
+- Synthetic fixture (banner reads "Synthetic example (hand-written, not model output)"): "Live transcription is not cooperating right now. [Say what failed.] I am switching to replay. This is a hand-written test example, not a recording and not model output. It shows how the interface behaves."
+
+(Press Stop if active, Reset, switch to REPLAY, play the named fixture. Point at the REPLAY banner and the provenance label.) "Same screen, same layout. What you do not get in replay is me speaking to it live, which is why I wanted to show you that. You can see the jagged cloud on the angry line and the rounded one on the sad line." (With the 0.97 gate no synthetic fixture shows the words-versus-voice badge, so do not point at a badge in replay. A recorded fixture shows a badge only if it fired live; check before promising it.) Never present replay as live.
 If the judge wants to see live later, offer: "Come back in five minutes, I will have it fixed."
 
 ## After a live miss

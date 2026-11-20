@@ -13,7 +13,7 @@ People who read captions, especially people with hearing loss, get the words but
 - Draws a colored, shaped cloud around the exact words for the detected vocal cue (shape and color, so it does not rely on color alone). Intensity changes size and saturation.
 - Flags "Words and voice differ" when text sentiment and detected vocal tone point opposite ways. It does not claim sarcasm.
 - Phrase inspector showing relative model scores; toggles for labels, a color-blind-safe palette and reduced motion.
-- A labeled replay mode that plays saved events through the same UI (never presented as live).
+- A labeled replay mode that plays saved events through the same UI (never presented as live). Each fixture states its provenance: "Synthetic example (hand-written, not model output)" or "Recorded live session (text, timestamps, scores; no audio)".
 
 ## How it is built
 The browser captures mic audio (AudioWorklet, 16 kHz PCM) and streams it to a FastAPI backend. The backend relays audio to ElevenLabs Scribe v3 Live for words and timestamps (R1) and runs emotion2vec+ Large locally in two-second windows for nine-category scores (R2). The backend aligns window scores to the Scribe word timestamps. In the browser, a DistilBERT SST-2 model (transformers.js, Web Worker) scores text sentiment for the differ flag (R5 s4). React/Vite renders text and animated SVG clouds.
@@ -37,7 +37,7 @@ The browser captures mic audio (AudioWorklet, 16 kHz PCM) and streams it to a Fa
 - Prior art: Google Expressive Captions (Android, English-only, US/UK/Canada/Australia) and RIT research exist (R4 s1, SYNTHESIS s3). We did not find a shipped caption product with a words-vs-voice flag (not proof of absence).
 
 ## Reproducing the demo
-See `docs/SETUP.md` and `docs/DEMO.md`. Live mode needs an ElevenLabs key and the downloaded model. Keyless replay: [FILL exact command (for example the replay start or `npm run build:replay`) and the fixture name once verified].
+See `docs/SETUP.md` and `docs/DEMO.md`. Live mode needs an ElevenLabs key and the downloaded model. Keyless replay: `scripts/demo_replay.sh`, open http://localhost:5173, choose Replay, press Start. Default fixture: [FILL: `replay_live_recorded` (recorded live session, text and scores only, no audio) if recorded; otherwise `replay_demo` (synthetic example, hand-written, not model output)]. Static build: `npm --prefix frontend run build:replay`.
 
 ## Backup video
 [FILL link] (shot list in `BACKUP_VIDEO.md`; any replay segment is labeled on screen.)
