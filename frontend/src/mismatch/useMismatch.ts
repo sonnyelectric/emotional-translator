@@ -48,7 +48,10 @@ export function useMismatchWithStatus(
     w.onmessage = (ev) => {
       const m = ev.data;
       if (m?.type === 'ready') setStatus('ready');
-      else if (m?.type === 'unavailable') setStatus('unavailable');
+      else if (m?.type === 'unavailable') {
+        if (import.meta.env.DEV) console.warn('[mismatch] text model unavailable:', m.reason);
+        setStatus('unavailable');
+      }
       else if (m?.type === 'result') setSentiments((s) => ({ ...s, [m.id]: { label: m.label, score: m.score } }));
     };
     w.onerror = () => setStatus('unavailable');

@@ -383,19 +383,18 @@ export function App() {
             Settings
           </button>
         </div>
+        {settingsOpen && (
+          <div id="settings-drawer" className="settings-drawer">
+            <SettingsPanel settings={settings} onChange={setSettings} mismatchAvailable={mismatchStatus !== 'unavailable'} />
+            {settings.mismatch && mismatchStatus === 'loading' ? (
+              <p className="settings-note">Words-vs-voice text model is warming up (first use downloads about 68 MB).</p>
+            ) : null}
+            {mismatchStatus === 'unavailable' ? (
+              <p className="settings-note">Words-vs-voice check is off: the text model could not load.</p>
+            ) : null}
+          </div>
+        )}
       </header>
-
-      {settingsOpen && (
-        <div id="settings-drawer" className="settings-drawer panel">
-          <SettingsPanel settings={settings} onChange={setSettings} mismatchAvailable={mismatchStatus !== 'unavailable'} />
-          {settings.mismatch && mismatchStatus === 'loading' ? (
-            <p className="settings-note">Words-vs-voice text model is warming up (first use downloads about 68 MB).</p>
-          ) : null}
-          {mismatchStatus === 'unavailable' ? (
-            <p className="settings-note">Words-vs-voice check is off: the text model could not load.</p>
-          ) : null}
-        </div>
-      )}
 
       <Notices
         mode={mode}

@@ -15,11 +15,23 @@ type Classifier = (text: string) => Promise<Array<{ label: string; score: number
 let loading: Promise<Classifier | null> | null = null;
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
 
+async function hasLocalBundle(): Promise<boolean> {
+  try {
+    const base = String(env.localModelPath ?? '/models/');
+    const r = await fetch(`${base.endsWith('/') ? base : base + '/'}${MODEL_ID}/config.json`, { cache: 'no-store' });
+    return r.ok && (r.headers.get('content-type') ?? '').includes('json');
+  } catch {
+    return false;
+  }
+}
+
 function load(): Promise<Classifier | null> {
   if (!loading) {
     loading = (async () => {
       try {
-        env.allowLocalModels = true; // lets an optional public/models/ bundle win when present
+        // An optional pre-bundled copy under public/models/ wins when it really exists. The dev
+        // server answers unknown paths with index.html (200), so check for JSON, not just 200.
+        env.allowLocalModels = await hasLocalBundle();
         const c = (await pipeline('sentiment-analysis', MODEL_ID, { dtype: 'q8' })) as unknown as Classifier;
         ctx.postMessage({ type: 'ready' });
         return c;
