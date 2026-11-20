@@ -97,6 +97,14 @@ def test_segment_basis_adds_observed_origin_once():
     assert segment.words[0].start_sample == 48000
 
 
+def test_spacing_tokens_are_ignored():
+    tracker = SegmentTracker(timestamp_basis="connection")
+    tracker.on_commit(notice("commit", text="Hello there."))
+    events, segment = tracker.on_timed(notice("timed", tokens=tokens(
+        ("Hello", 0, 4000), (" ", 4000, 4100), ("there.", 4100, 8000))), epoch())
+    assert [w.word_id for w in segment.words] == ["seg-1:w0", "seg-1:w1"]
+
+
 def test_segment_basis_without_origin_is_unresolvable():
     tracker = SegmentTracker()
     tracker.on_commit(notice("commit", text="Hello."))

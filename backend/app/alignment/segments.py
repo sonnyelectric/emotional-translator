@@ -134,10 +134,12 @@ class SegmentTracker:
         queue.remove(commit)
         segment_id = commit.segment_id
 
-        if not notice.tokens:
+        # Guard against provider spacing items (B's adapter should already drop them).
+        tokens = [token for token in notice.tokens if token.text.strip()]
+        if not tokens:
             return [self._warning(segment_id, "ALIGNMENT_TIMESTAMPS_MISSING")], None
-        texts = [token.text.strip() for token in notice.tokens]
-        if any(not text for text in texts) or normalize_text(" ".join(texts)) != normalize_text(commit.text):
+        texts = [token.text.strip() for token in tokens]
+        if normalize_text(" ".join(texts)) != normalize_text(commit.text):
             return [self._warning(segment_id, "ALIGNMENT_TIMESTAMP_MISMATCH")], None
 
         basis = notice.timestamp_basis
@@ -155,7 +157,7 @@ class SegmentTracker:
         sent_end = epoch.sent_end if epoch.sent_end is not None else epoch.origin
         words: list[TimedWord] = []
         previous = None
-        for index, (token, text) in enumerate(zip(notice.tokens, texts, strict=True)):
+        for index, (token, text) in enumerate(zip(tokens, texts, strict=True)):
             start, end = base + token.start_sample, base + token.end_sample
             if end > sent_end and end - sent_end <= END_TOLERANCE_SAMPLES:
                 end = sent_end

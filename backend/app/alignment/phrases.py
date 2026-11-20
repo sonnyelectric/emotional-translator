@@ -1,6 +1,6 @@
 """Overlap-weighted phrase grouping and annotation lifecycle (A-owned).
 
-Policy (recorded in docs/live/backend-alignment.md):
+Policy (decisions recorded here; see also the A-04 handoff):
 - Windows and words share the session sample clock; a window only contributes to
   words of its own epoch.
 - Word score = sum(w_i * s_i) / sum(w_i), with w_i = overlap/word_duration *

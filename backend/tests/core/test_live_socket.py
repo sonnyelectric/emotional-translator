@@ -225,3 +225,27 @@ def test_scribe_relay_progresses_while_inference_blocked():
     assert adapter.total_samples == 250 * 640
     assert len(worker.pending) <= 2
     assert "emotion.updated" not in rec.types()
+
+
+@pytest.mark.parametrize("basis,origin,expect_cloud", [("segment", 16000, True), ("unknown", None, False)])
+def test_timestamp_basis_through_fake_upstream(basis, origin, expect_cloud):
+    utterance = Utterance(after_samples=64000, text="Leave me alone.", basis=basis, segment_origin_samples=origin,
+                          words=[("Leave", 0.1, 0.4), ("me", 0.5, 0.7), ("alone.", 0.8, 1.4)])
+    with live_client(make_runtime(FakeScribeAdapter(utterances=[utterance]))) as client, \
+            client.websocket_connect("/ws/v1/session", headers=ORIGIN) as ws:
+        rec = Recorder(ws)
+        ws.send_text(command("session.start"))
+        rec.until_type("session.status", state="listening")
+        send_frames(ws, 150)
+        if expect_cloud:
+            timed = rec.until_type("transcript.timed")
+            assert timed["payload"]["words"][0]["start_ms"] == 1000 + 100  # segment origin added once
+            assert rec.until_type("emotion.updated")["payload"]["start_word_id"] == "seg-1:w0"
+        else:
+            warning = rec.until_type("alignment.warning")
+            assert warning["payload"]["code"] == "ALIGNMENT_BASIS_UNKNOWN"
+        ws.send_text(command("session.stop"))
+        rec.until_type("session.status", state="stopped")
+    assert bool(rec.of("transcript.timed")) == expect_cloud
+    assert bool(rec.of("emotion.updated")) == expect_cloud
+    assert [e["payload"]["text"] for e in rec.of("transcript.committed")] == ["Leave me alone."]
