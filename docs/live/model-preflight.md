@@ -68,9 +68,10 @@ Pin exact versions in B-04's live lock only after a successful run on the target
 
 - Environment: OS, CPU/GPU, RAM, exact Python, `funasr`, `modelscope`, `torch`, `torchaudio`, `numpy` versions, device used (cpu/mps).
 - Model: ID, source (ModelScope or HF), revision/commit, `model.pt` size and checksum, cache path convention, licence text version consulted.
-- Output shape from a real `generate()` call: top-level type, keys, label list and order, score layout (length, raw sum, range, any negative or non-finite value), label string form (for example Chinese/English mixed names), whether embeddings were absent, and the resulting `score_kind` plus the transform applied.
+- Output shape from a real `generate()` call: top-level type, keys, label list and order, score layout (length, raw sum, range, any negative or non-finite value), label string form (for example Chinese/English mixed names), and whether embeddings were absent.
+- Score decision, per [Pipeline "Scores and visual classification"](../PIPELINE.md#scores-and-visual-classification): which `score_kind` the real vector supports (`probability_like` or `comparable`) and the evidence for it. For `probability_like`, the observed raw sums and whether they fall within the 1e-3 unit-sum tolerance after normalization. For `comparable`, the documented bounded [0,1] conversion. The exact mapping from model label order and strings to the nine schema labels in schema order, with only proven aliases. How label-only, incomplete, negative or non-finite output is detected and failed.
 - Input: sample rate, dtype, window length (32000 samples at 16 kHz), whether a numpy array can be passed instead of a file path.
-- Performance: cold load time, RAM peak, per-window inference p50/p95, backlog and drops over a 3-minute run at 2 s windows / 1 s hop, silence-gate threshold used.
+- Performance (per [Pipeline "Measurements"](../PIPELINE.md#measurements) and the HANDOFFS evidence rule): cold load time, RAM peak, inference run time and queue wait as p50/p95 in milliseconds with sample size, dropped/stale window counts over a 3-minute run at 2 s windows / 1 s hop, silence-gate energy threshold used, and the hardware it ran on.
 - Behaviour: determinism across repeat runs, and the result on a permitted short local sample.
 
 ## 7. Handoff notes
