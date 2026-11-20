@@ -14,6 +14,11 @@ describe('sanitizeConfiguredOrigin (VITE_BACKEND_HTTP_ORIGIN)', () => {
     ['http://127.0.0.1:8000', 'http://127.0.0.1:8000'],
     ['http://localhost:8400', 'http://localhost:8400'],
     ['http://[::1]:8000', 'http://[::1]:8000'],
+    // Bare host entered in a hosting dashboard (no scheme): https for remote, http for loopback.
+    ['emotional-translator-1.replit.app', 'https://emotional-translator-1.replit.app'],
+    [' emotional-translator-1.replit.app/ ', 'https://emotional-translator-1.replit.app'],
+    ['localhost:8000', 'http://localhost:8000'],
+    ['127.0.0.1:8000', 'http://127.0.0.1:8000'],
   ])('accepts %s', (raw, expected) => {
     expect(sanitizeConfiguredOrigin(raw)).toBe(expected);
   });

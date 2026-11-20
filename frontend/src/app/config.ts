@@ -25,12 +25,23 @@ export function sanitizeOrigin(raw: string | null | undefined): string | null {
 }
 
 /**
+ * A bare host such as `my-app.replit.app` (no scheme) is a common hosting-dashboard entry.
+ * Treat it as https, or http for a loopback host, instead of silently falling back to localhost.
+ */
+function withDefaultScheme(raw: string | null | undefined): string | null | undefined {
+  const value = raw?.trim();
+  if (!value || /^[a-z][a-z0-9+.-]*:\/\//i.test(value)) return value;
+  const host = value.split(/[/:?#]/, 1)[0].toLowerCase();
+  return `${LOOPBACK_HOSTS.has(host) ? 'http' : 'https'}://${value}`;
+}
+
+/**
  * Accept the build-time backend origin: any https origin (a hosted backend), or http only
  * for loopback. Plain http to a remote host is refused: browsers block it from an https page
  * and the microphone stream would travel unencrypted.
  */
 export function sanitizeConfiguredOrigin(raw: string | null | undefined): string | null {
-  const u = parseOrigin(raw);
+  const u = parseOrigin(withDefaultScheme(raw));
   if (!u) return null;
   if (u.protocol === 'http:' && !LOOPBACK_HOSTS.has(u.hostname)) return null;
   return `${u.protocol}//${u.host}`;
