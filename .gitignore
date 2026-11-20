@@ -27,3 +27,4 @@ captures/
 *.m4a
 *.ogg
 *.webm
+.claude/

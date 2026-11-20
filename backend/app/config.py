@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, PositiveInt, SecretStr
+from pydantic import BaseModel, PositiveInt, SecretStr, field_validator
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
@@ -35,14 +35,24 @@ class Settings(BaseModel):
     # Backoff for transient Scribe failures: 0.5, 1, 2, 4 s (capped) with jitter.
     retry_base_ms: PositiveInt = 500
     retry_cap_ms: PositiveInt = 4000
-    # "provider" honours ScribeNotice.timestamp_basis. Set SCRIBE_TIMESTAMP_BASIS=connection
-    # only after the B-03 live smoke proves connection-relative word times.
-    scribe_timestamp_basis: Literal["provider", "connection"] = "provider"
+    # Clock basis of Scribe word times. scripts/smoke_scribe.py determines it at the event.
+    # "unknown" (default) honours the adapter's per-notice basis; the adapter reports
+    # "unknown", so no clouds attach (ALIGNMENT_BASIS_UNKNOWN) until the smoke proves a basis.
+    # "connection": word times count from the start of the upstream connection.
+    # "segment": word times restart per commit; Scribe supplies no segment origin, so this
+    # still yields ALIGNMENT_BASIS_UNKNOWN (honest, no invented offsets). "provider" is a
+    # legacy alias for "unknown".
+    scribe_timestamp_basis: Literal["unknown", "connection", "segment"] = "unknown"
     # Bounded Scribe writer queue in frames (~2 s at 40 ms). Overflow starts a new epoch.
     scribe_send_queue_frames: PositiveInt = 50
     # Wall-clock bound on waiting for model windows before a phrase is frozen.
     phrase_pending_timeout_ms: PositiveInt = 3000
     emotion_model_cache_dir: Path | None = None
+
+    @field_validator("scribe_timestamp_basis", mode="before")
+    @classmethod
+    def _legacy_basis(cls, value: object) -> object:
+        return "unknown" if value == "provider" else value
 
 
 def load_settings() -> Settings:

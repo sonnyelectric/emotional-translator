@@ -55,7 +55,8 @@ class PendingCommit:
 
 @dataclass
 class SegmentTracker:
-    timestamp_basis: str = "provider"
+    # Configured basis (Settings.scribe_timestamp_basis): unknown | connection | segment.
+    timestamp_basis: str = "unknown"
     next_segment: int = 1
     next_partial: int = 1
     partial_id: str | None = None
@@ -143,8 +144,8 @@ class SegmentTracker:
             return [self._warning(segment_id, "ALIGNMENT_TIMESTAMP_MISMATCH")], None
 
         basis = notice.timestamp_basis
-        if basis == "unknown" and self.timestamp_basis == "connection":
-            basis = "connection"
+        if basis == "unknown" and self.timestamp_basis in ("connection", "segment"):
+            basis = self.timestamp_basis
         if epoch.origin is None:
             return [self._warning(segment_id, "ALIGNMENT_TIMESTAMP_MISMATCH")], None
         if basis == "connection":

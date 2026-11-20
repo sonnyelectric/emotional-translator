@@ -70,6 +70,24 @@ def test_duplicate_provider_key_suppressed():
     assert tracker.on_commit(notice("commit", text="Hi.", provider_commit_key="k1")) == []
 
 
+@pytest.mark.parametrize("configured", ["unknown", "segment"])
+def test_configured_basis_without_origin_never_guesses(configured):
+    # "segment" needs a per-commit origin that Scribe does not supply, so it still warns.
+    tracker = SegmentTracker(timestamp_basis=configured)
+    tracker.on_commit(notice("commit", text="Hello there."))
+    events, segment = tracker.on_timed(notice("timed", timestamp_basis="unknown", tokens=tokens(
+        ("Hello", 0, 4000), ("there.", 4100, 8000))), epoch())
+    assert segment is None and events[0][1]["code"] == "ALIGNMENT_BASIS_UNKNOWN"
+
+
+def test_timestamp_basis_setting_values():
+    assert Settings().scribe_timestamp_basis == "unknown"
+    assert Settings(scribe_timestamp_basis="provider").scribe_timestamp_basis == "unknown"  # legacy alias
+    assert Settings(scribe_timestamp_basis="connection").scribe_timestamp_basis == "connection"
+    with pytest.raises(ValueError):
+        Settings(scribe_timestamp_basis="seconds")
+
+
 def test_unknown_basis_warns_instead_of_guessing():
     tracker = SegmentTracker()  # honour provider basis
     tracker.on_commit(notice("commit", text="Hello there."))

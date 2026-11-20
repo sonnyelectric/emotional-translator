@@ -79,9 +79,23 @@ def test_health(client):
 
 
 def test_replay_mode_does_not_import_live_runtime():
-    assert "backend.app.adapters.scribe" not in sys.modules
-    assert "backend.app.emotion.worker" not in sys.modules
-    assert "funasr" not in sys.modules
+    # Fresh interpreter: other test modules (tests/audio_ai) import the live runtime at
+    # collection time, so this process's sys.modules cannot answer the question.
+    import subprocess
+
+    code = (
+        "import sys\n"
+        "from fastapi.testclient import TestClient\n"
+        "from backend.app.config import Settings\n"
+        "from backend.app.main import create_app\n"
+        "with TestClient(create_app(Settings(mode='replay'))) as c:\n"
+        "    assert c.get('/healthz').status_code == 200\n"
+        "bad = [m for m in ('backend.app.adapters.scribe', 'backend.app.emotion.worker', 'funasr') if m in sys.modules]\n"
+        "assert not bad, bad\n"
+    )
+    repo = Path(__file__).resolve().parents[3]
+    result = subprocess.run([sys.executable, "-c", code], cwd=repo, capture_output=True, text=True, timeout=120)
+    assert result.returncode == 0, result.stderr[-2000:]
 
 
 def corrupt(root, name, mutate):
