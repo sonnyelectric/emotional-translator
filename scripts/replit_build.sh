@@ -11,6 +11,11 @@ if [[ -z "$python_bin" ]]; then
 fi
 "$python_bin" -c 'import sys; sys.exit(0 if sys.version_info[:2] == (3, 11) else "Python 3.11 required (modules = [\"python-3.11\"] in .replit).")'
 
+# Replit's Python module sets PIP_USER (pip --user), which a virtualenv rejects:
+# "Can not perform a '--user' install. User site-packages are not visible in this virtualenv."
+export PIP_USER=0
+unset PYTHONUSERBASE || true
+
 if [[ ! -x .venv/bin/python ]]; then
     "$python_bin" -m venv .venv
 fi
