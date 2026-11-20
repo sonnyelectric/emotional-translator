@@ -39,15 +39,30 @@ class Settings(BaseModel):
     # "unknown" (default) honours the adapter's per-notice basis; the adapter reports
     # "unknown", so no clouds attach (ALIGNMENT_BASIS_UNKNOWN) until the smoke proves a basis.
     # "connection": word times count from the start of the upstream connection.
-    # "segment": word times restart per commit; Scribe supplies no segment origin, so this
-    # still yields ALIGNMENT_BASIS_UNKNOWN (honest, no invented offsets). "provider" is a
-    # legacy alias for "unknown".
+    # "segment": word times restart per commit. Scribe supplies no segment origin, so only
+    # the first commit of each connection is timed (at the connection start, plan B); later
+    # commits yield ALIGNMENT_BASIS_UNKNOWN (no invented offsets). "provider" is a legacy
+    # alias for "unknown".
     scribe_timestamp_basis: Literal["unknown", "connection", "segment"] = "unknown"
     # Bounded Scribe writer queue in frames (~2 s at 40 ms). Overflow starts a new epoch.
     scribe_send_queue_frames: PositiveInt = 50
     # Wall-clock bound on waiting for model windows before a phrase is frozen.
     phrase_pending_timeout_ms: PositiveInt = 3000
     emotion_model_cache_dir: Path | None = None
+    # RECORD_SESSION_EVENTS: opt-in. When set to a .jsonl path (relative paths resolve from
+    # the repo root), each live session's emitted events (text, timestamps, scores; never
+    # audio) are written there as a replay fixture with a "recorded live session" manifest
+    # entry when the session ends. Example: shared/fixtures/replay_live_recorded.jsonl
+    record_session_events: Path | None = None
+
+    @field_validator("record_session_events", mode="after")
+    @classmethod
+    def _resolve_record_path(cls, value: Path | None) -> Path | None:
+        if value is None:
+            return None
+        if value.suffix != ".jsonl":
+            raise ValueError("RECORD_SESSION_EVENTS must end in .jsonl")
+        return value if value.is_absolute() else BACKEND_ROOT.parent / value
 
     @field_validator("scribe_timestamp_basis", mode="before")
     @classmethod

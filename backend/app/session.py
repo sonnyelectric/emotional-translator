@@ -40,6 +40,7 @@ from .audio_ai_ports import (
 )
 from .config import Settings
 from .metrics import Metrics
+from .recorder import SessionRecorder
 from .schemas import SCHEMA_VERSION, ServerEvent
 
 log = logging.getLogger(__name__)
@@ -80,6 +81,8 @@ class Emitter:
         self.seq = 0
         self.last_issued = 0
         self.rejected = 0
+        # Optional observer of every emitted event (the opt-in session recorder).
+        self.tap: Callable[[dict], None] | None = None
 
     def emit(self, event_type: str, payload: dict) -> dict | None:
         issued = max(self.last_issued, int(round((self.now() - self.t0) * 1000)))
@@ -94,6 +97,8 @@ class Emitter:
         self.seq += 1
         self.last_issued = issued
         self.sink(json.dumps(data, separators=(",", ":"), allow_nan=False))
+        if self.tap is not None:
+            self.tap(data)
         return data
 
 
@@ -266,6 +271,12 @@ class LiveSession:
         self._tasks: set[asyncio.Task] = set()
         self._ticker: asyncio.Task | None = None
         self._closed = False
+        # RECORD_SESSION_EVENTS: record this session's emitted events (never audio) as a
+        # replay fixture when it ends. Off unless the operator sets the flag.
+        self.recorder: SessionRecorder | None = None
+        if self.settings.record_session_events is not None:
+            self.recorder = SessionRecorder(self.settings.record_session_events)
+            emitter.tap = self.recorder.record
 
     # ---- emission helpers -------------------------------------------------------
     def emit(self, events: list[tuple[str, dict]]) -> None:
@@ -560,6 +571,10 @@ class LiveSession:
             self.scheduler.end_session(self.session_id)
         self.outstanding.clear()
         self.runtime.release(self)
+        if self.recorder is not None:
+            if self.emitter.tap == self.recorder.record:
+                self.emitter.tap = None
+            self.recorder.finish()
         self.metrics.merge("segments", self.tracker.counters)
         if self.engine is not None:
             self.metrics.merge("phrases", self.engine.counters)
