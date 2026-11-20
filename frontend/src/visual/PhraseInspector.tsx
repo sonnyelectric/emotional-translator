@@ -6,7 +6,7 @@ import { mismatchTooltip } from '../mismatch/valence';
 
 const sec = (ms: number) => (ms / 1000).toFixed(2) + 's';
 
-export function PhraseInspector({ annotation: a, onClose, phraseText, mismatch, palette = 'default' }: PhraseInspectorProps) {
+export function PhraseInspector({ annotation: a, onClose, phraseText, mismatch, palette = 'default', synthetic = false }: PhraseInspectorProps) {
   const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!a) return;
@@ -19,9 +19,11 @@ export function PhraseInspector({ annotation: a, onClose, phraseText, mismatch, 
   if (!a) return null;
   const rows = [...ALL_LABELS].sort((x, y) => a.scores[y] - a.scores[x]);
   const blendText = a.blend ? ` with a secondary ${LABEL_TEXT[a.blend.secondary].toLowerCase()} cue (${Math.round(a.blend.weight * 100)}% blend)` : '';
-  const explain =
-    `The voice in this phrase scored highest for ${LABEL_TEXT[a.primary].toLowerCase()} (${Math.round(a.support * 100)}% relative model support)${blendText}. ` +
-    `It marks a vocal cue across the phrase, not a single word, and not what anyone feels.`;
+  const explain = synthetic
+    ? `Synthetic example (hand-written, not model output): this phrase is labelled ${LABEL_TEXT[a.primary].toLowerCase()} ` +
+      `(${Math.round(a.support * 100)}% relative support)${blendText}. No voice or model produced it; it shows how a cue would look.`
+    : `The voice in this phrase scored highest for ${LABEL_TEXT[a.primary].toLowerCase()} (${Math.round(a.support * 100)}% relative model support)${blendText}. ` +
+      `It marks a vocal cue across the phrase, not a single word, and not what anyone feels.`;
 
   return (
     <aside className="et-visual et-panel et-inspector" ref={ref} tabIndex={-1} aria-label="Phrase details">

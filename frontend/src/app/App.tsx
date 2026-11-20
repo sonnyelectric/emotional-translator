@@ -33,6 +33,7 @@ import { SessionControls, type ControlState } from '../components/SessionControl
 import { Notices } from '../components/Notices';
 import { TranscriptHistory } from '../components/TranscriptHistory';
 import { ReplayBanner } from '../components/ReplayBanner';
+import { cueFootnote } from '../replay/provenance';
 import { StatusPill, describeStatus } from '../components/StatusPill';
 
 export type Mode = 'live' | 'replay';
@@ -344,6 +345,8 @@ export function App() {
   const partial = state.partial ? { partial_id: state.partial.partial_id, text: state.partial.text } : null;
   const lastCommitted = state.segments.length > 0 ? state.segments[state.segments.length - 1] : null;
 
+  const replayEntry =
+    mode === 'replay' ? manifest?.fixtures.find((f) => f.id === (loaded?.entry.id ?? fixtureId)) ?? null : null;
   const statusInfo = describeStatus({ mode, livePhase, status, replayPhase, error: state.error, localIssue });
   const showIdlePrompt = !hasContent && (mode === 'live' ? !recording : replayPhase === 'replay_idle' || replayPhase === 'replay_loading');
 
@@ -411,14 +414,14 @@ export function App() {
       <main className="layout">
         <aside className="profile-panel" aria-label="Emotion profile">
           <EmotionProfile latest={latestScores} settings={settings} />
-          <p className="panel-note">
-            Detected vocal cues from the emotion2vec+ model, not a reading of anyone&apos;s feelings.
+          <p className="panel-note" data-testid="cue-footnote">
+            {cueFootnote(mode, replayEntry)}
           </p>
         </aside>
 
         <section className="panel transcript-panel" aria-labelledby="transcript-title">
           <div className="panel-head">
-            <h2 id="transcript-title">{mode === 'live' ? 'Live transcript' : 'Saved replay transcript'}</h2>
+            <h2 id="transcript-title">{mode === 'live' ? 'Live transcript' : 'Replay transcript'}</h2>
           </div>
           <div className="center-stage" data-testid="center-transcript">
             {showIdlePrompt ? (
@@ -430,7 +433,7 @@ export function App() {
                 <p>
                   {mode === 'live'
                     ? 'Start listening to see vocal emotion cues.'
-                    : 'Press Start to play a saved result. Nothing here is live.'}
+                    : 'Press Start to play a replay. Nothing here is live.'}
                 </p>
               </div>
             ) : (
@@ -482,6 +485,7 @@ export function App() {
             phraseText={inspectedText}
             mismatch={effectiveMismatch?.get(inspected.segment_id) ?? null}
             palette={settings.palette}
+            synthetic={mode === 'replay' && replayEntry?.provenance !== 'recorded_result'}
           />
         </div>
       )}

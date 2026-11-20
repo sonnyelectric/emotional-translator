@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { instrument, stubReplay } from './e2e-helpers';
+
+const MANIFEST_PATH = fileURLToPath(new URL('../../shared/fixtures/manifest.json', import.meta.url));
 
 test.describe('G1 replay', () => {
   test('G1 plays replay_demo with REPLAY label, no mic or WebSocket, history and reset', async ({ page }) => {
@@ -79,5 +83,48 @@ test.describe('G1 replay', () => {
     await page.getByTestId('btn-start').click();
     await expect(page.getByTestId('replay-error')).toContainText('Line 2');
     await expect(page.locator('[data-segment-id]')).toHaveCount(0);
+  });
+});
+
+test.describe('replay provenance labels', () => {
+  test('synthetic fixture never claims saved model output', async ({ page }) => {
+    await instrument(page);
+    await stubReplay(page);
+    await page.goto('/');
+    await page.getByRole('radio', { name: 'Replay' }).click();
+    await page.getByTestId('btn-start').click();
+    await expect(page.getByTestId('replay-provenance')).toContainText('Synthetic example (hand-written, not model output)');
+    const banner = await page.getByTestId('replay-banner').innerText();
+    expect(banner).not.toMatch(/saved result|recorded/i);
+    await expect(page.getByTestId('cue-footnote')).toContainText('Synthetic example (hand-written, not model output)');
+    await expect(page.getByTestId('cue-footnote')).not.toContainText('emotion2vec');
+    await expect(page.getByText('Saved result')).toHaveCount(0);
+  });
+
+  test('a recorded_result entry is labelled as a recorded live session', async ({ page }) => {
+    // UI-labelling test only: the manifest entry is stubbed; it reuses a synthetic file's
+    // events so nothing here is presented as real model output outside this test.
+    const manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'));
+    const anger = manifest.fixtures.find((f: { id: string }) => f.id === 'replay_anger_sad');
+    manifest.fixtures = [
+      {
+        ...anger,
+        case_name: 'Recorded live session, 2026-11-20',
+        provenance: 'recorded_result',
+        provenance_detail: 'recorded live session (text, timestamps, scores; no audio)',
+        recorded_on: '2026-11-20',
+      },
+    ];
+    manifest.default_fixture = anger.id;
+    await instrument(page);
+    await stubReplay(page, [], manifest);
+    await page.goto('/');
+    await page.getByRole('radio', { name: 'Replay' }).click();
+    await page.getByTestId('btn-start').click();
+    await expect(page.getByTestId('replay-provenance')).toContainText(
+      'Recorded live session, 2026-11-20 (text, timestamps, scores; no audio)',
+    );
+    await expect(page.getByTestId('cue-footnote')).toContainText('Recorded live session');
+    await expect(page.getByTestId('replay-provenance')).not.toContainText('Synthetic');
   });
 });

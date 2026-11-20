@@ -51,7 +51,7 @@ export function SessionControls(p: Props) {
         )}
         {p.mode === 'replay' && p.fixtures.length > 0 && (
           <label className="fixture-pick">
-            <span>Saved result</span>
+            <span>Replay fixture</span>
             <select
               value={p.fixtureId ?? ''}
               disabled={!c.start}

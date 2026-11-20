@@ -188,6 +188,10 @@ export interface ReplayFixtureEntry {
   case_name: string;
   duration_ms: number;
   provenance: 'synthetic_example' | 'recorded_result';
+  /** Optional plain-language provenance written by the session recorder. */
+  provenance_detail?: string;
+  /** ISO date a recorded_result was captured. */
+  recorded_on?: string;
 }
 
 export interface ReplayManifest {

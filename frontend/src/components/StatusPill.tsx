@@ -20,9 +20,9 @@ export function describeStatus(args: {
   if (mode === 'replay') {
     switch (replayPhase) {
       case 'replay_loading':
-        return { label: 'Loading saved result', tone: 'busy' };
+        return { label: 'Loading replay', tone: 'busy' };
       case 'replay_playing':
-        return { label: 'Playing saved result', tone: 'ok' };
+        return { label: 'Playing replay', tone: 'ok' };
       case 'replay_paused':
         return { label: 'Replay paused', tone: 'idle' };
       case 'replay_done':

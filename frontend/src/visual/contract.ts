@@ -128,6 +128,8 @@ export interface PhraseInspectorProps {
   mismatch?: MismatchResult | null;
   /** Palette for the header glyph (defaults to 'default'). */
   palette?: PaletteName;
+  /** True for hand-written replay data: the text must not say a voice or model produced it. */
+  synthetic?: boolean;
 }
 
 export interface SettingsPanelProps {

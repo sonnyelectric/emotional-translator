@@ -87,6 +87,7 @@ export interface PhraseInspectorProps {
   phraseText?: string;
   mismatch?: MismatchResult | null;
   palette?: VisualSettings['palette'];
+  synthetic?: boolean;
 }
 
 export function PhraseInspector({ annotation, ...rest }: PhraseInspectorProps) {

@@ -32,7 +32,8 @@ export async function instrument(page: Page) {
 }
 
 /** Serve the checked-in fixtures in place of the backend replay endpoints (unless E2E_REAL_REPLAY=1). */
-export async function stubReplay(page: Page, requests: string[] = []) {
+/** `manifestOverride` replaces the tracked manifest body (UI-labelling tests only). */
+export async function stubReplay(page: Page, requests: string[] = [], manifestOverride?: unknown) {
   if (process.env.E2E_REAL_REPLAY === '1') return;
   await page.route(`${BACKEND}/api/v1/replay/**`, async (route) => {
     const url = new URL(route.request().url());
@@ -43,7 +44,7 @@ export async function stubReplay(page: Page, requests: string[] = []) {
         status: 200,
         contentType: 'application/json',
         headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' },
-        body: readFileSync(join(FIXTURES, 'manifest.json'), 'utf8'),
+        body: manifestOverride ? JSON.stringify(manifestOverride) : readFileSync(join(FIXTURES, 'manifest.json'), 'utf8'),
       });
     }
     try {
