@@ -10,6 +10,8 @@ const FATAL_HINTS: Record<string, string> = {
   SCRIBE_AUTH: 'The transcription service rejected the API key. Check backend/.env, or use Replay.',
   SCRIBE_QUOTA: 'The transcription quota is used up. Use Replay, or add credits.',
   SCRIBE_TERMS: 'The transcription account needs its terms accepted. Use Replay meanwhile.',
+  LIVE_DAILY_LIMIT_REACHED: "Today's live time on this server is used up. Replay still works.",
+  LIVE_SESSION_BUSY: 'Someone else is using the live demo right now. Try again in a few minutes, or use Replay.',
   SCRIBE_RETRY_EXHAUSTED: 'Transcription could not reconnect. Your transcript is kept. Reset, then Start again.',
 };
 
@@ -17,6 +19,8 @@ const WARNING_TITLES: Record<string, string> = {
   SCRIBE_RECONNECTING: 'Transcription reconnecting',
   EMOTION_MODEL_UNAVAILABLE: 'Emotion cues unavailable',
   EMOTION_INFERENCE_SLOW: 'Emotion cues delayed',
+  SESSION_TIME_LIMIT: 'Session time limit reached',
+  LIVE_DAILY_LIMIT_REACHED: 'Daily live time used up',
   ALIGNMENT_TIMESTAMPS_MISSING: 'Word timing missing',
   ALIGNMENT_TIMESTAMP_MISMATCH: 'Word timing mismatch',
 };
