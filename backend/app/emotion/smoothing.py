@@ -43,10 +43,28 @@ def opacity_for_support(support: float, config: Settings) -> float:
     return STANDARD_OPACITY[0] + t * (STANDARD_OPACITY[1] - STANDARD_OPACITY[0])
 
 
+def weighted_scores(scores: Mapping[str, float], config: Settings) -> dict[str, float]:
+    """Apply EMOTION_LABEL_GAINS and renormalize. Used only to decide which label a phrase
+    shows and how strongly; the raw scores are what the events and inspector report."""
+    gains = getattr(config, "emotion_label_gains", None) or {}
+    original = {k: float(scores[k]) for k in LABELS}
+    if not gains:
+        return original
+    weighted = {k: max(0.0, v) * float(gains.get(k, 1.0)) for k, v in original.items()}
+    before, after = sum(max(0.0, v) for v in original.values()), sum(weighted.values())
+    if after <= 0:
+        return original
+    # Keep the same total mass, so thresholds mean the same thing as for raw scores.
+    return {k: v * before / after for k, v in weighted.items()}
+
+
 def classify(
     scores: Mapping[str, float], previous_state: RenderCandidate | None, config: Settings
 ) -> RenderCandidate | None:
-    """Return None (suppressed) or a RenderCandidate. See docs/PIPELINE.md."""
+    """Return None (suppressed) or a RenderCandidate. See docs/PIPELINE.md.
+    Decisions use the label-weighted scores (EMOTION_LABEL_GAINS); with no gains configured
+    they equal the raw scores."""
+    scores = weighted_scores(scores, config)
     top = max(scores[k] for k in LABELS)
     # neutral/other/unknown leading or tied for the lead suppresses immediately
     if any(scores[k] >= top for k in ("neutral", "other", "unknown")):

@@ -32,12 +32,20 @@ class Settings(BaseModel):
     emotion_window_seconds: float = 2.0
     emotion_hop_seconds: float = 1.0
     emotion_smoothing_alpha: float = 0.55
-    emotion_visible_support: float = 0.42
-    emotion_faint_support: float = 0.25
-    emotion_neutral_suppress: float = 0.50
+    emotion_visible_support: float = 0.36
+    emotion_faint_support: float = 0.20
+    emotion_neutral_suppress: float = 0.60
     emotion_blend_secondary_min: float = 0.30
     emotion_blend_gap_max: float = 0.15
     emotion_hysteresis: float = 0.06
+    # EMOTION_LABEL_GAINS: per-label weights applied only when choosing which emotion a phrase
+    # shows and how strongly (raw model scores are still emitted and shown unchanged). A demo
+    # tuning knob, not a calibration: >1 makes a label easier to show, <1 harder.
+    # Format: "happy=0.6,sad=1.3". Labels left out keep weight 1.0.
+    emotion_label_gains: dict[str, float] = {
+        "angry": 1.3, "disgusted": 1.6, "fearful": 1.6, "happy": 0.6, "sad": 1.3,
+        "surprised": 1.4, "neutral": 0.8, "other": 0.8, "unknown": 0.7,
+    }
     max_pending_emotion_windows: PositiveInt = 2
     phrase_gap_ms: PositiveInt = 350
     session_drain_timeout_ms: PositiveInt = 1200
@@ -75,6 +83,30 @@ class Settings(BaseModel):
     live_daily_max_seconds: PositiveFloat | None = None
     # ENABLE_TUNE_ROUTE=1 mounts the dev tuning route (/ws/dev/tune) in live mode.
     enable_tune_route: bool = False
+
+    @field_validator("emotion_label_gains", mode="before")
+    @classmethod
+    def _parse_gains(cls, value: object) -> object:
+        if isinstance(value, str):
+            parsed: dict[str, float] = {}
+            for item in value.split(","):
+                if not item.strip():
+                    continue
+                label, _, weight = item.partition("=")
+                parsed[label.strip().lower()] = float(weight)
+            return parsed
+        return value
+
+    @field_validator("emotion_label_gains", mode="after")
+    @classmethod
+    def _check_gains(cls, value: dict[str, float]) -> dict[str, float]:
+        known = {"angry", "disgusted", "fearful", "happy", "neutral", "other", "sad", "surprised", "unknown"}
+        for label, weight in value.items():
+            if label not in known:
+                raise ValueError(f"Unknown emotion label in EMOTION_LABEL_GAINS: {label!r}")
+            if not (0 < weight <= 10):
+                raise ValueError(f"EMOTION_LABEL_GAINS weight for {label!r} must be in (0, 10]")
+        return value
 
     @field_validator("allowed_origins", mode="before")
     @classmethod

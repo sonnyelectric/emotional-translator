@@ -12,7 +12,11 @@ from backend.tests.fakes.emotion import (
     MIXED_ANGER_SAD, NEUTRAL, STRONG_SAD, FakeEmotionScorer, FakeScorerFailure,
 )
 
-CFG = Settings()
+# Pin the original TDD thresholds with no per-label gains: these tests check the policy math,
+# not the demo tuning (see test_label_gains_* below for that).
+BASE = dict(emotion_visible_support=0.42, emotion_faint_support=0.25, emotion_neutral_suppress=0.50,
+            emotion_label_gains={})
+CFG = Settings(**BASE)
 CASES = json.loads(
     (Path(__file__).resolve().parents[3] / "shared/fixtures/pipeline_examples.json").read_text()
 )["classification_cases"]
@@ -68,7 +72,7 @@ def test_neutral_leads_or_ties_suppresses():
 
 def test_neutral_threshold_veto():
     # sad leads but neutral >= 0.50 cannot lead here; use a custom lower threshold
-    cfg = Settings(emotion_neutral_suppress=0.30)
+    cfg = Settings(**{**BASE, "emotion_neutral_suppress": 0.30})
     assert classify(vec(sad=0.40, neutral=0.31, angry=0.29), None, cfg) is None
     assert classify(vec(sad=0.40, neutral=0.31, angry=0.29), None, CFG) is not None
 
@@ -281,3 +285,34 @@ def test_fake_clock_queue_wait():
         assert w.stats.queue_wait_ms == [10] and w.stats.run_ms == [10]
         await w.aclose()
     run(go())
+
+
+def _vec(**kw):
+    base = {k: 0.0 for k in ("angry", "disgusted", "fearful", "happy", "neutral", "other", "sad", "surprised", "unknown")}
+    base.update(kw)
+    return base
+
+
+def test_label_gains_tip_a_close_happy_vs_sad_call_to_sad():
+    from backend.app.emotion.smoothing import classify
+    scores = _vec(happy=0.45, sad=0.40, neutral=0.15)
+    assert classify(scores, None, CFG).primary == "happy"  # no gains: raw winner
+    tuned = Settings(**{**BASE, "emotion_label_gains": {"happy": 0.6, "sad": 1.3}})
+    assert classify(scores, None, tuned).primary == "sad"
+
+
+def test_label_gains_surface_weaker_emotions():
+    from backend.app.emotion.smoothing import classify
+    scores = _vec(fearful=0.22, neutral=0.40, unknown=0.38)
+    assert classify(scores, None, CFG) is None  # neutral leads, suppressed
+    tuned = Settings(**{**BASE, "emotion_label_gains": {"fearful": 1.6, "neutral": 0.8, "unknown": 0.7}})
+    out = classify(scores, None, tuned)
+    assert out is not None and out.primary == "fearful"
+
+
+def test_label_gains_parse_from_env_string_and_reject_unknown():
+    import pytest
+    s = Settings(emotion_label_gains="happy=0.6, sad=1.3")
+    assert s.emotion_label_gains == {"happy": 0.6, "sad": 1.3}
+    with pytest.raises(Exception):
+        Settings(emotion_label_gains="joy=2")
