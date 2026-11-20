@@ -1,17 +1,28 @@
 """Process settings. Only an explicit live launch reads backend/.env."""
 
 import os
+import re
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, PositiveInt, SecretStr, field_validator
+from pydantic import BaseModel, PositiveFloat, PositiveInt, SecretStr, field_validator
+
+ORIGIN_PATTERN = re.compile(r"^https?://[A-Za-z0-9.\-\[\]:]+$")
+ORIGIN_ENV = ("ALLOWED_ORIGIN", "ALLOWED_ORIGINS", "ALLOWED_ORIGIN_REGEX")
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
 
 class Settings(BaseModel):
     mode: Literal["replay", "live"] = "replay"
+    # Browser origins allowed to open the session WebSocket and read the replay routes.
+    # ALLOWED_ORIGIN (legacy, one origin) and ALLOWED_ORIGINS (comma-separated) are exact
+    # matches; ALLOWED_ORIGIN_REGEX is matched against the whole Origin (re.fullmatch), e.g.
+    # ^https://[a-z0-9-]+-team\.vercel\.app$ for Vercel previews. When ALLOWED_ORIGINS is
+    # set and ALLOWED_ORIGIN is not, the localhost default is dropped. Everything else is refused.
     allowed_origin: str = "http://localhost:5173"
+    allowed_origins: tuple[str, ...] = ()
+    allowed_origin_regex: str | None = None
     elevenlabs_api_key: SecretStr | None = None
     scribe_model_id: Literal["scribe_v3_live"] = "scribe_v3_live"
     scribe_commit_strategy: Literal["vad"] = "vad"
@@ -54,6 +65,63 @@ class Settings(BaseModel):
     # audio) are written there as a replay fixture with a "recorded live session" manifest
     # entry when the session ends. Example: shared/fixtures/replay_live_recorded.jsonl
     record_session_events: Path | None = None
+    # Public-endpoint guards (the Scribe key is server-side, so every live second costs credit).
+    # SESSION_MAX_SECONDS: a live session is stopped cleanly (session.warning, then stopped)
+    # this many wall-clock seconds after Start, paused time included.
+    session_max_seconds: PositiveFloat = 300
+    # LIVE_DAILY_MAX_SECONDS: optional in-memory cap on live wall-clock seconds per UTC day.
+    # New live sessions are refused with session.error LIVE_DAILY_LIMIT_REACHED once it is used.
+    # Resets on process restart.
+    live_daily_max_seconds: PositiveFloat | None = None
+    # ENABLE_TUNE_ROUTE=1 mounts the dev tuning route (/ws/dev/tune) in live mode.
+    enable_tune_route: bool = False
+
+    @field_validator("allowed_origins", mode="before")
+    @classmethod
+    def _split_origins(cls, value: object) -> object:
+        if isinstance(value, str):
+            value = value.split(",")
+        if isinstance(value, (list, tuple)):
+            return tuple(item.strip().rstrip("/") for item in value if item and item.strip())
+        return value
+
+    @field_validator("allowed_origin", mode="after")
+    @classmethod
+    def _check_origin(cls, value: str) -> str:
+        value = value.strip().rstrip("/")
+        if not ORIGIN_PATTERN.match(value):
+            raise ValueError(f"Not an exact http(s) origin: {value!r}")
+        return value
+
+    @field_validator("allowed_origins", mode="after")
+    @classmethod
+    def _check_origins(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        for origin in value:
+            if not ORIGIN_PATTERN.match(origin):
+                raise ValueError(f"Not an exact http(s) origin: {origin!r}")
+        return value
+
+    @field_validator("allowed_origin_regex", mode="after")
+    @classmethod
+    def _check_regex(cls, value: str | None) -> str | None:
+        if value is None or not value.strip():
+            return None
+        try:
+            re.compile(value)
+        except re.error as exc:
+            raise ValueError(f"ALLOWED_ORIGIN_REGEX is not a valid regex: {exc}") from None
+        return value.strip()
+
+    @property
+    def exact_origins(self) -> tuple[str, ...]:
+        if self.allowed_origins and "allowed_origin" not in self.model_fields_set:
+            return self.allowed_origins
+        return tuple(dict.fromkeys((self.allowed_origin, *self.allowed_origins)))
+
+    def origin_allowed(self, origin: str) -> bool:
+        if origin in self.exact_origins:
+            return True
+        return self.allowed_origin_regex is not None and re.fullmatch(self.allowed_origin_regex, origin) is not None
 
     @field_validator("record_session_events", mode="after")
     @classmethod
@@ -74,8 +142,9 @@ def load_settings() -> Settings:
     mode = os.environ.get("TRANSLATOR_MODE", "replay")
     if mode != "live":
         values = {"mode": mode}
-        if "ALLOWED_ORIGIN" in os.environ:
-            values["allowed_origin"] = os.environ["ALLOWED_ORIGIN"]
+        for name in ORIGIN_ENV:
+            if os.environ.get(name):
+                values[name.lower()] = os.environ[name]
         return Settings.model_validate(values)
 
     from dotenv import dotenv_values

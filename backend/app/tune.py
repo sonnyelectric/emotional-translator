@@ -178,7 +178,7 @@ async def tune_endpoint(websocket: WebSocket) -> None:
     settings: Settings = app.state.settings
     origin = websocket.headers.get("origin")
     client_host = websocket.client.host if websocket.client else None
-    if (origin is not None and origin != settings.allowed_origin) or client_host not in LOOPBACK:
+    if (origin is not None and not settings.origin_allowed(origin)) or client_host not in LOOPBACK:
         await websocket.close(code=POLICY_CLOSE)
         return
     runtime = app.state.live_runtime

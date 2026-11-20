@@ -40,7 +40,8 @@ def create_app(
     app.state.live_runtime = live_runtime
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[settings.allowed_origin],
+        allow_origins=list(settings.exact_origins),
+        allow_origin_regex=settings.allowed_origin_regex,
         allow_methods=["GET"],
     )
 
@@ -50,7 +51,8 @@ def create_app(
 
     app.include_router(replay_router(ReplayCatalog(fixtures_root)))
     app.add_api_websocket_route("/ws/v1/session", session_endpoint)
-    if settings.mode == "live":
+    if settings.mode == "live" and settings.enable_tune_route:
         # Dev-only tuning route (outside the v1 protocol): model scores, never transcript.
+        # Off unless ENABLE_TUNE_ROUTE=1, so a public deployment does not expose it.
         app.add_api_websocket_route("/ws/dev/tune", tune_endpoint)
     return app

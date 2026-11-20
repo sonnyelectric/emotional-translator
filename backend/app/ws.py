@@ -142,6 +142,8 @@ class Connection:
             error = "LIVE_NOT_CONFIGURED"
         elif runtime.setup_error:
             error = runtime.setup_error
+        elif (remaining := runtime.daily_remaining()) is not None and remaining <= 0:
+            error = "LIVE_DAILY_LIMIT_REACHED"
         if error is None:
             session = LiveSession(runtime, emitter, self.close)
             if runtime.acquire(session):
@@ -185,7 +187,7 @@ async def session_endpoint(websocket: WebSocket) -> None:
     app = websocket.app
     origin = websocket.headers.get("origin")
     # Browsers always send Origin; reject a foreign one before accepting the upgrade.
-    if origin is not None and origin != app.state.settings.allowed_origin:
+    if origin is not None and not app.state.settings.origin_allowed(origin):
         await websocket.close(code=POLICY_CLOSE)
         return
     await websocket.accept()
