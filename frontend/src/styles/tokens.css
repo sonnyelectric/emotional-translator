@@ -1,20 +1,46 @@
+/*
+ * Token plan (visual redesign, 2026-11-20)
+ *
+ * Colour: one quiet warm-dark theme, hairlines instead of filled boxes.
+ *   --bg          #0E0D0C  page, warm near-black (not navy)
+ *   --surface     #181716  the one raised tone (overlays: inspector, settings)
+ *   --line        #2A2826  1px hairline, low contrast
+ *   --line-strong #3D3A37  hairline for interactive edges (buttons, inputs)
+ *   --text        #EDEBE8  body + the single primary action (near-white)
+ *   --text-dim    #A9A49E  secondary text      (8.0:1 on --bg)
+ *   --text-faint  #8E8983  labels, notes       (5.6:1 on --bg, 5.1:1 on --surface)
+ *   --replay      #D9B25F  only for the REPLAY pill / honesty banner tag
+ *   No accent colour: focus rings and the primary button use --text.
+ *
+ * Type: system stack (SF Pro on Mac). Scale 12 / 13 / 15 / 20 px, transcript clamp(28-40px).
+ *   Headings: weight 600, letter-spacing -0.01em. Transcript line-height 1.9.
+ * Spacing: 8px grid (4 for hairline nudges only): 8 16 24 32 48.
+ * Radius: 10px (surfaces, buttons), 6px (small chips). Used sparingly.
+ * Motion: 150ms (hover, opacity) / 200ms (panels), ease-out. Press = scale(0.96).
+ *   Reduced motion (OS or in-app setting) -> opacity only, no movement.
+ */
 :root {
-  --bg: #101827;
-  --bg-deep: #0b1220;
-  --panel: #192438;
-  --panel-raised: #1f2c44;
-  --line: #2a3a57;
-  --line-strong: #3a4d70;
-  --text: #f3f5f9;
-  --text-dim: #b7c1d3;
-  --text-faint: #8391aa;
-  --accent: #5fd4e6;
-  --accent-ink: #072a31;
-  --ok: #4fd18b;
-  --warn: #f2c14e;
-  --error: #ff6b6b;
-  --replay: #f2c14e;
-  --replay-ink: #2a1f00;
+  --bg: #0e0d0c;
+  --bg-deep: #0e0d0c;
+  --surface: #181716;
+  --panel: #181716;
+  --panel-raised: #181716;
+  --line: #2a2826;
+  --line-strong: #3d3a37;
+  --text: #edebe8;
+  --text-dim: #a9a49e;
+  --text-faint: #8e8983;
+  --accent: #edebe8;
+  --accent-ink: #0e0d0c;
+  --primary: #edebe8;
+  --primary-hover: #ffffff;
+  --primary-ink: #0e0d0c;
+  --hover-fill: rgba(237, 235, 232, 0.06);
+  --ok: #7fb98f;
+  --warn: #d9b25f;
+  --error: #e5826f;
+  --replay: #d9b25f;
+  --replay-ink: #1a1408;
 
   --emo-angry: #dc4545;
   --emo-sad: #478cd4;
@@ -23,12 +49,20 @@
   --emo-surprised: #ef9858;
   --emo-disgusted: #68a876;
 
-  --radius: 14px;
-  --radius-sm: 8px;
-  --font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 15px;
+  --fs-lg: 20px;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --transcript-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.4rem);
-  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --transcript-size: clamp(28px, 1.2rem + 1.4vw, 40px);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 150ms;
+  --dur: 200ms;
   color-scheme: dark;
 }
 
@@ -44,6 +78,8 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
+  font-size: var(--fs-md);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -54,7 +90,7 @@ input {
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--text);
   outline-offset: 2px;
 }
 

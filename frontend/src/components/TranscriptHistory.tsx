@@ -47,7 +47,7 @@ export function TranscriptHistory({ segments, annotations, settings, onInspect, 
         <span className={open ? 'chev open' : 'chev'} aria-hidden="true">
           ▸
         </span>
-        History · {segments.length} earlier {segments.length === 1 ? 'segment' : 'segments'}
+        History, {segments.length} earlier {segments.length === 1 ? 'segment' : 'segments'}
       </button>
       {open && (
         <div id="history-body" className="history-body" ref={scroller} tabIndex={0}>

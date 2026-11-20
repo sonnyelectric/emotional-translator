@@ -1,3 +1,4 @@
+/* One slim bottom bar: a single near-white primary action, everything else quiet. */
 .controls {
   position: sticky;
   bottom: 0;
@@ -6,97 +7,148 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px 20px;
-  padding: 12px 20px;
-  background: rgba(11, 18, 32, 0.92);
-  backdrop-filter: blur(8px);
+  gap: 8px 24px;
+  padding: 12px 24px;
+  background: var(--bg);
   border-top: 1px solid var(--line);
 }
 .controls-group {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .segmented {
   display: inline-flex;
-  padding: 3px;
-  border-radius: 10px;
-  background: var(--panel);
+  padding: 2px;
+  border-radius: var(--radius);
   border: 1px solid var(--line-strong);
 }
 .seg-btn {
+  height: 28px;
   border: 0;
   background: transparent;
-  color: var(--text-dim);
-  padding: 6px 14px;
+  color: var(--text-faint);
+  padding: 0 12px;
   border-radius: 7px;
   cursor: pointer;
-  font-weight: 600;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease);
 }
 .seg-btn.active {
-  background: var(--panel-raised);
+  background: rgba(237, 235, 232, 0.1);
   color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--line-strong);
 }
 .seg-btn:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
+@media (hover: hover) {
+  .seg-btn:not(:disabled):not(.active):hover {
+    color: var(--text);
+  }
+}
 .fixture-pick {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--text-dim);
-  font-size: 0.88rem;
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
 }
 .fixture-pick select {
-  background: var(--panel);
+  height: 32px;
+  background: transparent;
   color: var(--text);
   border: 1px solid var(--line-strong);
-  border-radius: var(--radius-sm);
-  padding: 6px 10px;
+  border-radius: var(--radius);
+  padding: 0 8px;
+  font-size: var(--fs-sm);
   max-width: 320px;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+.fixture-pick select option {
+  background: var(--surface);
+}
+.fixture-pick select:disabled {
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+@media (hover: hover) {
+  .fixture-pick select:not(:disabled):hover {
+    border-color: var(--text-faint);
+  }
 }
 .btn {
-  min-height: 40px;
-  padding: 8px 18px;
-  border-radius: 10px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--radius);
   border: 1px solid var(--line-strong);
-  background: var(--panel-raised);
+  background: transparent;
   color: var(--text);
-  font-weight: 600;
+  font-size: var(--fs-sm);
+  font-weight: 500;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition:
-    background-color 0.15s var(--ease),
-    border-color 0.15s var(--ease);
-}
-.btn:hover:not(:disabled) {
-  border-color: var(--accent);
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    opacity var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease);
 }
 .btn:disabled {
-  opacity: 0.4;
+  color: var(--text-dim);
+  opacity: 0.5;
   cursor: not-allowed;
 }
 .btn.primary {
-  background: var(--accent);
-  color: var(--accent-ink);
-  border-color: var(--accent);
+  background: var(--primary);
+  color: var(--primary-ink);
+  border-color: var(--primary);
+  font-weight: 600;
 }
-.btn.primary:hover:not(:disabled) {
-  background: #8be3ef;
+.btn.primary:disabled {
+  background: transparent;
+  color: var(--text-dim);
+  border-color: var(--line-strong);
 }
 .btn.ghost {
-  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim);
 }
 .btn.small {
-  min-height: 30px;
-  padding: 4px 12px;
-  font-size: 0.85rem;
+  height: 28px;
+  padding: 0 12px;
+  font-size: var(--fs-xs);
+}
+@media (hover: hover) {
+  .btn:not(:disabled):hover {
+    background: var(--hover-fill);
+    border-color: var(--text-faint);
+  }
+  .btn.ghost:not(:disabled):hover {
+    border-color: transparent;
+    color: var(--text);
+  }
+  .btn.primary:not(:disabled):hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .app:not([data-reduced-motion='true']) .btn:not(:disabled):active,
+  .app:not([data-reduced-motion='true']) .seg-btn:not(:disabled):active,
+  .app:not([data-reduced-motion='true']) .icon-btn:active {
+    transform: scale(0.96);
+  }
 }
 @media (max-width: 560px) {
   .controls {
-    padding: 10px 16px;
+    padding: 8px 16px;
   }
   .controls-group.buttons {
     width: 100%;
