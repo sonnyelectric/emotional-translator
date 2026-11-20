@@ -49,6 +49,11 @@ def create_app(
     async def healthz() -> dict[str, str]:
         return {"schema_version": SCHEMA_VERSION, "status": "ok"}
 
+    @app.get("/")
+    async def root() -> dict[str, str]:
+        # Hosting health checks (e.g. Replit deployments) probe the homepage; answer fast.
+        return {"service": "emotional-translator-backend", "status": "ok", "health": "/healthz"}
+
     app.include_router(replay_router(ReplayCatalog(fixtures_root)))
     app.add_api_websocket_route("/ws/v1/session", session_endpoint)
     if settings.mode == "live" and settings.enable_tune_route:

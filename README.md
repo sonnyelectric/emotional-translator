@@ -20,6 +20,8 @@ Tests: `.venv/bin/python -m pytest backend/tests -q` (add `RUN_LIVE_MODEL=1` for
 
 Recorded replay (opt-in): set `RECORD_SESSION_EVENTS=shared/fixtures/replay_live_recorded.jsonl` in `backend/.env` before a live run. When the session stops, its server events (text, timestamps, scores; never audio) become a validated replay fixture labelled "Recorded live session" and the default replay. Without the flag nothing is stored. Every bundled fixture is otherwise a synthetic example (hand-written, not model output), and the UI says so.
 
+Hosted live backend (Replit Reserved VM) + Vercel frontend: [docs/DEPLOY_REPLIT.md](docs/DEPLOY_REPLIT.md). Weights on a fresh box: `scripts/fetch_model.sh` (pinned revision, sha256-checked).
+
 Screenshots: [docs/screenshots/](docs/screenshots/). Pitch and rehearsal: [docs/pitch/](docs/pitch/).
 
 ---
