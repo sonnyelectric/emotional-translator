@@ -15,11 +15,18 @@ export SCRIBE_TIMESTAMP_BASIS="${SCRIBE_TIMESTAMP_BASIS:-connection}"
 export EMOTION_MODEL_CACHE_DIR="${EMOTION_MODEL_CACHE_DIR:-$PWD/model-cache/emotion2vec_plus_large}"
 unset ENABLE_TUNE_ROUTE  # the dev tuning route stays off on a public endpoint
 
-# Workspace convenience: the deployment build normally did this already.
-if [[ ! -x .venv/bin/python ]] || ! .venv/bin/python -c 'import funasr' 2>/dev/null \
-        || [[ ! -s "$EMOTION_MODEL_CACHE_DIR/model.pt" ]]; then
+# The deployment build normally did this already. The check is file-based on purpose: importing
+# torch/FunASR here would delay binding the port and fail the host's health check.
+if [[ ! -x .venv/bin/python || ! -f .venv/.live-ready || ! -s "$EMOTION_MODEL_CACHE_DIR/model.pt" ]]; then
     echo "Live runtime or weights missing; running scripts/replit_build.sh first." >&2
+    # Answer health checks on / while the build runs, then hand the port to the backend.
+    hold_dir=$(mktemp -d)
+    echo '{"service":"emotional-translator-backend","status":"building"}' > "$hold_dir/index.html"
+    python3 -m http.server "$PORT" --bind "$HOST" --directory "$hold_dir" >/dev/null 2>&1 &
+    hold_pid=$!
     bash scripts/replit_build.sh
+    kill "$hold_pid" 2>/dev/null || true
+    wait "$hold_pid" 2>/dev/null || true
 fi
 
 if [[ -z "${ELEVENLABS_API_KEY:-}" ]]; then

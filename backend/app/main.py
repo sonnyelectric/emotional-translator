@@ -1,3 +1,5 @@
+import asyncio
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -23,15 +25,37 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        runtime = live_runtime
-        if runtime is None and settings.mode == "live":
-            runtime = build_live_runtime(settings)
-        app.state.live_runtime = runtime
-        if runtime is not None:
-            await runtime.start()
+        app.state.live_starting = False
+        boot: asyncio.Task | None = None
+        if live_runtime is not None:
+            app.state.live_runtime = live_runtime
+            await live_runtime.start()
+        elif settings.mode == "live":
+            # Importing torch/FunASR can take a minute on a small hosted VM. Do it off the event
+            # loop so uvicorn answers health checks (/ and /healthz) immediately.
+            app.state.live_runtime = None
+            app.state.live_starting = True
+
+            async def boot_live() -> None:
+                try:
+                    runtime = await asyncio.to_thread(build_live_runtime, settings)
+                    app.state.live_runtime = runtime
+                    await runtime.start()
+                except Exception as exc:
+                    logging.getLogger(__name__).warning("Live runtime failed to start: %s: %s",
+                                                        type(exc).__name__, exc)
+                finally:
+                    app.state.live_starting = False
+
+            boot = asyncio.create_task(boot_live(), name="live-boot")
+        else:
+            app.state.live_runtime = None
         try:
             yield
         finally:
+            if boot is not None and not boot.done():
+                boot.cancel()
+            runtime = app.state.live_runtime
             if runtime is not None:
                 await runtime.aclose()
 

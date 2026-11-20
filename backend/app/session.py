@@ -66,6 +66,7 @@ WARNING_MESSAGES = {
 ERROR_MESSAGES = {
     **FATAL_MESSAGES,
     "LIVE_NOT_CONFIGURED": "Live mode is not configured on this backend. Replay remains available.",
+    "LIVE_STARTING": "The live server is still loading its models. Try Start again in a minute.",
     "LIVE_SESSION_BUSY": "Another live session is already active on this backend.",
     "LIVE_DAILY_LIMIT_REACHED": "Today's live time on this server is used up. Replay still works.",
 }

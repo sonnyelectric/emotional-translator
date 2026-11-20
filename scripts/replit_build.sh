@@ -19,3 +19,4 @@ fi
 
 export EMOTION_MODEL_CACHE_DIR="${EMOTION_MODEL_CACHE_DIR:-$PWD/model-cache/emotion2vec_plus_large}"
 bash scripts/fetch_model.sh
+touch .venv/.live-ready  # replit_start.sh checks this instead of importing torch at start

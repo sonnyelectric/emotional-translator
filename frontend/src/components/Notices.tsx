@@ -7,6 +7,7 @@ import type { ReplayError } from '../protocol/replayClient';
 
 const FATAL_HINTS: Record<string, string> = {
   LIVE_NOT_CONFIGURED: 'Live transcription is not configured on this laptop. Replay still works.',
+  LIVE_STARTING: 'The live server is still loading its models. Try Start again in a minute.',
   SCRIBE_AUTH: 'The transcription service rejected the API key. Check backend/.env, or use Replay.',
   SCRIBE_QUOTA: 'The transcription quota is used up. Use Replay, or add credits.',
   SCRIBE_TERMS: 'The transcription account needs its terms accepted. Use Replay meanwhile.',
