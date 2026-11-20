@@ -12,6 +12,19 @@ Sources: `docs/DEMO.md`, `docs/research/R2` s6 (demo tips), R5 s1 and s4. R2 s6 
 | 4 | Happy | "We got the grant, I cannot believe it!" | Bright, higher pitch, wide pitch swings, smiling while speaking, quick and lifted. |
 | 5 | Mismatch | "Oh great, that's just perfect." | Say it ANGRY: loud, clipped, hard stress on "great" and "perfect". Positive words, angry voice. Needs 3 or more words and text sentiment of 0.90 or higher to flag (PLAN D3, R5 s4). Test it: if the badge does not appear, switch to "Thanks so much, that is wonderful." angrily, or the backup "I'm fine." said sadly (R5 s4 fixtures). |
 
+### Mismatch line check, text side only (run 2026-11-20 by the integrator)
+
+Real run, not estimated: `Xenova/distilbert-base-uncased-finetuned-sst-2-english`, dtype `q8`, `@huggingface/transformers` 4.3.2 in Node (the same library and model id the browser worker loads).
+
+| Line | Label | Score | Clears 0.90? |
+|---|---|---|---|
+| "Oh great, that's just perfect." | POSITIVE | 0.99987 | yes |
+| "That is great, thanks so much for cancelling on me again." | POSITIVE | 0.99960 | yes |
+| "I'm fine, really, it's fine." | POSITIVE | 0.99985 | yes |
+| "Thanks a lot." | POSITIVE | 0.99981 | yes |
+
+All four pass the text gate, so line 5 stays as written; any of the others is a valid backup (say it angrily or sadly). This only proves the text half. The badge also needs (a) Scribe to transcribe the words exactly enough to keep the polarity, (b) a visible (opacity >= 0.31) angry, sad, fearful or disgusted cloud on that segment, which needs word timestamps, so `SCRIBE_TIMESTAMP_BASIS` must be set from the smoke test (with `unknown` no cloud is placed and the badge cannot fire), and (c) the browser model to have finished its first download (Settings shows "warming up" until then). The code's minimum is 2 words (`MIN_WORDS` in `frontend/src/mismatch/valence.ts`), not 3. None of the saved replay fixtures contains a mismatch line, so replay never shows the badge; do not promise it in the fallback script.
+
 Delivery rules:
 - Mic about a hand-width (10-15 cm) away, same distance every time. Do not shout into it. Strong prosody beats volume.
 - Hold the emotion through the whole line. Two-second windows score what they hear (R2 s4), so a half-hearted line reads neutral. Expect neutral to dominate quiet or flat speech (R2 s6).
@@ -41,7 +54,7 @@ Delivery rules:
 4. Everything fails: play the backup video.
 
 ## "If live fails" script (say it, do not hide it)
-"Live transcription is not cooperating right now. [Say what failed: the network, the mic, the backend.] I am switching to replay. This is a saved recording of events from a real run, played through the same interface, not live." (Press Stop if active, Reset, switch to REPLAY, play the named fixture. Point at the REPLAY banner and the provenance label.) "Same screen, same clouds. What you do not get in replay is me speaking to it live, which is why I wanted to show you that. You can see the jagged cloud on the angry line, the rounded one on the sad line, and the badge where the words and voice differ."
+"Live transcription is not cooperating right now. [Say what failed: the network, the mic, the backend.] I am switching to replay. This is a saved recording of events from a real run, played through the same interface, not live." (Press Stop if active, Reset, switch to REPLAY, play the named fixture. Point at the REPLAY banner and the provenance label.) "Same screen, same clouds. What you do not get in replay is me speaking to it live, which is why I wanted to show you that. You can see the jagged cloud on the angry line and the rounded one on the sad line." (The saved fixtures have no words-versus-voice line, so do not point at a badge in replay.)
 If the fixture is synthetic rather than recorded from a real session, say that: "This fixture was authored for testing, not recorded." Read the provenance shown in the UI and say exactly that. Never present replay as live.
 If the judge wants to see live later, offer: "Come back in five minutes, I will have it fixed."
 
