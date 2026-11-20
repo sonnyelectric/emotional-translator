@@ -32,6 +32,16 @@ class Settings(BaseModel):
     session_drain_timeout_ms: PositiveInt = 1200
     phrase_lookahead_ms: PositiveInt = 2000
     retry_max_attempts: PositiveInt = 5
+    # Backoff for transient Scribe failures: 0.5, 1, 2, 4 s (capped) with jitter.
+    retry_base_ms: PositiveInt = 500
+    retry_cap_ms: PositiveInt = 4000
+    # "provider" honours ScribeNotice.timestamp_basis. Set SCRIBE_TIMESTAMP_BASIS=connection
+    # only after the B-03 live smoke proves connection-relative word times.
+    scribe_timestamp_basis: Literal["provider", "connection"] = "provider"
+    # Bounded Scribe writer queue in frames (~2 s at 40 ms). Overflow starts a new epoch.
+    scribe_send_queue_frames: PositiveInt = 50
+    # Wall-clock bound on waiting for model windows before a phrase is frozen.
+    phrase_pending_timeout_ms: PositiveInt = 3000
     emotion_model_cache_dir: Path | None = None
 
 
