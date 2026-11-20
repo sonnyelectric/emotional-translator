@@ -214,7 +214,10 @@ def test_late_results_after_stop_are_quarantined():
         from backend.app.audio_ai_ports import WindowNotice
 
         before = runtime.metrics.counters.get("window_results_quarantined", 0)
-        runtime.worker.out.put_nowait(WindowNotice(session_id, 1, 0, 32000, "dropped", 0.0, 1.0))
+        client.portal.call(
+            runtime.worker.out.put_nowait,
+            WindowNotice(session_id, 1, 0, 32000, "dropped", 0.0, 1.0),
+        )
         deadline = time.monotonic() + 2
         while runtime.metrics.counters.get("window_results_quarantined", 0) == before:
             assert time.monotonic() < deadline
