@@ -210,3 +210,36 @@ Rule: if the 11:00–12:00 block slips past 12:30, stop adding features and prot
 ---
 
 *Reviewer notes on method: I made no code changes. I ran `npm run build`, which rewrote the gitignored `frontend/dist/`. The sentiment checks ran from a temporary script, deleted afterwards, and used the model already cached in `node_modules`. `git status` was clean apart from this file.*
+
+---
+
+## 7. Fixes applied (fixer F1, 2026-11-20)
+
+All runs below are real, on this laptop, after the fixes.
+
+| Check | Result |
+|---|---|
+| Backend `pytest tests/core tests/audio_ai` | **266 passed** |
+| `npm test` (new alias of `test:unit`) | **131 passed** (8 files) |
+| `npm run typecheck`, `npm run build`, `npm run build:replay` | clean / succeed |
+| Playwright (`PW_CHANNEL=chrome`, port 5300) | **7 passed** |
+| `npm run check:fixtures` (real SST-2 model over all 13 fixture segments) | **0 false badges** (table in `docs/pitch/REHEARSAL.md`) |
+| `scripts/verify_replay.sh` against a replay backend on port 8300 | PASS (7 fixtures) |
+
+What changed:
+
+- **F1, F2, R7, R8, H2, H4.** `TEXT_SCORE_MIN` is 0.97; `surprised` never flags (`valence.ts`, tests updated). Demo line 4 is now "We got the grant, this is amazing!" (POSITIVE 0.99988) in TALK_TRACK, REHEARSAL and BACKUP_VIDEO. New `frontend/scripts/fixture_sentiment.ts` (`npm run check:fixtures`) re-checks any fixture, including a future recording. `replay_demo` seg-2 (0.945) no longer flags.
+- **F4 / R2.** Timed words are matched to the commit ignoring case, punctuation, spacing, Unicode form and token splits. If they still differ, the timed notice's own text (or the words' own text) wins through a new optional `text` field on `transcript.timed` (schema, pydantic, replay validator, reducer, PROTOCOL.md). `ALIGNMENT_TIMESTAMP_MISMATCH` now fires only for invalid timing.
+- **F3 / R1.** Code plan B: with `SCRIBE_TIMESTAMP_BASIS=segment`, the first commit of each connection is timed at the connection start; later commits on that connection warn `ALIGNMENT_BASIS_UNKNOWN`. Fake-Scribe socket tests cover connection and segment bases. `smoke_scribe.py` and `docs/live/scribe-preflight.md` say which setting to use for each verdict.
+- **F5.** Opt-in recorder: `RECORD_SESSION_EVENTS=shared/fixtures/replay_live_recorded.jsonl`. On session end it writes the emitted events (no audio) as a validated replay fixture, plus a manifest entry with `provenance: recorded_result`, `provenance_detail` and `recorded_on` (new optional schema fields). That fixture becomes the default replay.
+- **F6 / U1.** Replay UI copy: synthetic fixtures read "Synthetic example (hand-written, not model output)" in the banner, the footnote and the inspector. "Recorded live session" appears only for `recorded_result`. No replay string says "saved result" or credits emotion2vec+.
+- **F8.** `npm test` exists.
+- **H1, H3, M1–M6, L1.** The fallback script reads the provenance. "Any device" and "browser-based" are gone. The text now says "two Deaf participants". The inspector line says "averaged over the phrase's windows". The 72% figure is dropped. JUDGE_QA 7 uses the measured window time only. The privacy answer mentions the recorder. The legibility caveat is restored. The unfetched event page is no longer cited.
+
+What remains:
+
+- Not run by anyone: Scribe, a live human-voice session, threshold tuning, and a live badge. The basis setting still depends on the smoke test.
+- No recorded fixture exists yet. All 7 bundled fixtures are synthetic. Record one only from a real live run.
+- F7 (pre-bundle the text model), M7 (`MIN_WORDS` 2 vs 3 in SYNTHESIS rule 6), the script critique (Section 5), and the post-hackathon list are untouched.
+- Build-timing statements in `docs/PLAN.md` and `docs/live/scribe-preflight.md`, and README's team-size wording, are left for the owner to decide.
+- `[FILL]` items in SUBMISSION, REHEARSAL and JUDGE_QA 11 need event-day data.
