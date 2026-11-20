@@ -22,4 +22,4 @@ if [[ ! -x .venv/bin/python ]]; then
     echo "Run scripts/setup.sh --backend-only first." >&2
     exit 1
 fi
-exec .venv/bin/python -m uvicorn backend.app.main:create_app --factory --host 127.0.0.1 --port 8000 --workers 1
+exec .venv/bin/python -m uvicorn backend.app.main:create_app --factory --host 127.0.0.1 --port "${BACKEND_PORT:-8000}" --workers 1

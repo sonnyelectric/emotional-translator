@@ -1,0 +1,81 @@
+:root {
+  --bg: #101827;
+  --bg-deep: #0b1220;
+  --panel: #192438;
+  --panel-raised: #1f2c44;
+  --line: #2a3a57;
+  --line-strong: #3a4d70;
+  --text: #f3f5f9;
+  --text-dim: #b7c1d3;
+  --text-faint: #8391aa;
+  --accent: #5fd4e6;
+  --accent-ink: #072a31;
+  --ok: #4fd18b;
+  --warn: #f2c14e;
+  --error: #ff6b6b;
+  --replay: #f2c14e;
+  --replay-ink: #2a1f00;
+
+  --emo-angry: #dc4545;
+  --emo-sad: #478cd4;
+  --emo-happy: #edb94b;
+  --emo-fearful: #9975d8;
+  --emo-surprised: #ef9858;
+  --emo-disgusted: #68a876;
+
+  --radius: 14px;
+  --radius-sm: 8px;
+  --font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --transcript-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.4rem);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.15s !important;
+  }
+}

@@ -32,6 +32,10 @@
               },
               "minItems": 1,
               "uniqueItems": true
+            },
+            "text": {
+              "$ref": "common.schema.json#/$defs/text",
+              "description": "Optional. Present only when the provider's timed words differ from the committed text beyond case, punctuation or spacing. It replaces the segment text; the joined word texts must equal it."
             }
           },
           "additionalProperties": false
