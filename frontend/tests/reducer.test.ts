@@ -263,3 +263,51 @@ describe('sentence selectors', () => {
     expect(history.map((s) => s.segment_id)).toEqual(['a']);
   });
 });
+
+describe('transcript.timed text revision (provider timed text differs from the commit)', () => {
+  const env = (seq: number, type: string, payload: unknown) => ({
+    schema_version: '1.0',
+    type,
+    session_id: 'rev',
+    seq,
+    issued_at_ms: seq * 10,
+    payload,
+  });
+  const status = env(1, 'session.status', {
+    state: 'listening',
+    mode: 'replay',
+    scribe: 'not_required',
+    emotion_model: 'not_required',
+    detail: null,
+  });
+  const commit = env(2, 'transcript.committed', {
+    segment_id: 'seg-1',
+    text: 'Hello there.',
+    timing_state: 'pending',
+    language_code: null,
+  });
+  const words = [
+    { word_id: 'seg-1:w0', text: 'Hello', start_ms: 0, end_ms: 200 },
+    { word_id: 'seg-1:w1', text: 'their.', start_ms: 210, end_ms: 400 },
+  ];
+
+  it('replaces the segment text when the timed event carries matching text', () => {
+    const timed = env(3, 'transcript.timed', { segment_id: 'seg-1', language_code: 'en', words, text: 'Hello their.' });
+    const { state, outcomes } = run([status, commit, timed]);
+    expect(outcomes).toEqual(['applied', 'applied', 'applied']);
+    expect(state.segments[0].text).toBe('Hello their.');
+    expect(state.segments[0].timing_state).toBe('timed');
+  });
+
+  it('still rejects differing words without an explicit text', () => {
+    const timed = env(3, 'transcript.timed', { segment_id: 'seg-1', language_code: 'en', words });
+    const { outcomes } = run([status, commit, timed]);
+    expect(outcomes[2]).toMatch(/timed text mismatch/);
+  });
+
+  it('rejects an explicit text that the words do not spell', () => {
+    const timed = env(3, 'transcript.timed', { segment_id: 'seg-1', language_code: 'en', words, text: 'Hi there.' });
+    const { outcomes } = run([status, commit, timed]);
+    expect(outcomes[2]).toMatch(/timed text mismatch/);
+  });
+});

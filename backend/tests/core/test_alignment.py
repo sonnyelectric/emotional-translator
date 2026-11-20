@@ -70,14 +70,47 @@ def test_duplicate_provider_key_suppressed():
     assert tracker.on_commit(notice("commit", text="Hi.", provider_commit_key="k1")) == []
 
 
-@pytest.mark.parametrize("configured", ["unknown", "segment"])
-def test_configured_basis_without_origin_never_guesses(configured):
-    # "segment" needs a per-commit origin that Scribe does not supply, so it still warns.
-    tracker = SegmentTracker(timestamp_basis=configured)
+def test_configured_unknown_basis_never_guesses():
+    tracker = SegmentTracker(timestamp_basis="unknown")
     tracker.on_commit(notice("commit", text="Hello there."))
     events, segment = tracker.on_timed(notice("timed", timestamp_basis="unknown", tokens=tokens(
         ("Hello", 0, 4000), ("there.", 4100, 8000))), epoch())
     assert segment is None and events[0][1]["code"] == "ALIGNMENT_BASIS_UNKNOWN"
+
+
+def test_configured_segment_basis_times_only_the_first_commit_of_each_epoch():
+    # Plan B: a segment-relative first segment starts at the connection start. Later
+    # segments in the same epoch have no known origin, so they warn instead of guessing.
+    tracker = SegmentTracker(timestamp_basis="segment")
+    tracker.on_commit(notice("commit", text="Hello there."))
+    tracker.on_commit(notice("commit", text="Second line."))
+    first, seg1 = tracker.on_timed(notice("timed", tokens=tokens(
+        ("Hello", 1600, 4000), ("there.", 4100, 8000))), epoch(origin=32000, sent_end=80000))
+    assert first[0][0] == "transcript.timed" and seg1.words[0].start_sample == 33600
+    second, seg2 = tracker.on_timed(notice("timed", tokens=tokens(
+        ("Second", 0, 4000), ("line.", 4100, 8000))), epoch(origin=32000, sent_end=80000))
+    assert seg2 is None and second[0][1]["code"] == "ALIGNMENT_BASIS_UNKNOWN"
+    # A new epoch (Resume or reconnect) gets its own first commit.
+    tracker.on_commit(notice("commit", epoch=2, text="New epoch."))
+    third, seg3 = tracker.on_timed(notice("timed", epoch=2, tokens=tokens(
+        ("New", 800, 4000), ("epoch.", 4100, 8000))), epoch(origin=96000, sent_end=120000, number=2))
+    assert seg3.words[0].start_sample == 96800
+    assert tracker.counters["segment_first_in_epoch"] == 2
+
+
+def test_segment_plan_b_counts_empty_and_keeps_duplicate_commits_out():
+    tracker = SegmentTracker(timestamp_basis="segment")
+    tracker.on_commit(notice("commit", text="  "))  # empty commit still closes a provider segment
+    tracker.on_commit(notice("commit", text="After empty."))
+    events, segment = tracker.on_timed(notice("timed", tokens=tokens(
+        ("After", 0, 4000), ("empty.", 4100, 8000))), epoch())
+    assert segment is None and events[0][1]["code"] == "ALIGNMENT_BASIS_UNKNOWN"
+    tracker = SegmentTracker(timestamp_basis="segment")
+    tracker.on_commit(notice("commit", text="Hi there.", provider_commit_key="k"))
+    tracker.on_commit(notice("commit", text="Hi there.", provider_commit_key="k"))  # duplicate
+    _, segment = tracker.on_timed(notice("timed", tokens=tokens(("Hi", 0, 4000), ("there.", 4100, 8000))),
+                                  epoch())
+    assert segment is not None
 
 
 def test_timestamp_basis_setting_values():
@@ -135,13 +168,53 @@ def test_segment_basis_without_origin_is_unresolvable():
     tokens(("Hello", 0, 4000), ("there.", 4100, 200000)),  # beyond sent audio
     tokens(("Hello", 4000, 4000), ("there.", 4100, 8000)),  # nonpositive
     tokens(("Hello", 5000, 6000), ("there.", 4100, 8000)),  # out of order
-    tokens(("Hello", 0, 4000), ("their.", 4100, 8000)),  # text mismatch
+    tokens(("...", 0, 4000), ("!", 4100, 8000)),  # no letters or digits to match at all
 ])
 def test_invalid_word_timing_warns_mismatch(bad_tokens):
     tracker = SegmentTracker(timestamp_basis="connection")
     tracker.on_commit(notice("commit", text="Hello there."))
     events, segment = tracker.on_timed(notice("timed", tokens=bad_tokens), epoch(sent_end=160000))
     assert segment is None and events[0][1]["code"] == "ALIGNMENT_TIMESTAMP_MISMATCH"
+
+
+@pytest.mark.parametrize("commit_text,token_texts", [
+    ("Hello there.", ["hello", "there"]),  # case and punctuation
+    ("Hello, there!", ["Hello", ",", "there", "!"]),  # punctuation as separate tokens
+    ("It's  fine.", ["It", "'s", "fine."]),  # token split inside a word, extra space
+    ("Caf\u00e9 time.", ["Cafe\u0301", "time."]),  # NFD from the provider, NFC in the commit
+    ("Wait \u2014 now.", ["Wait", "now."]),  # dash word with no letters merges into its neighbour
+])
+def test_loose_matching_keeps_committed_text(commit_text, token_texts):
+    tracker = SegmentTracker(timestamp_basis="connection")
+    tracker.on_commit(notice("commit", text=commit_text))
+    timed = tokens(*[(t, 1000 * i, 1000 * i + 900) for i, t in enumerate(token_texts)])
+    events, segment = tracker.on_timed(notice("timed", tokens=timed), epoch())
+    assert events[0][0] == "transcript.timed" and segment is not None
+    payload = events[0][1]
+    assert "text" not in payload  # committed text kept, no revision
+    joined = " ".join(w["text"] for w in payload["words"])
+    assert joined == " ".join(commit_text.split())
+    starts = [w["start_ms"] for w in payload["words"]]
+    assert starts == sorted(starts)
+
+
+def test_genuine_word_difference_prefers_timed_text_over_dropping():
+    tracker = SegmentTracker(timestamp_basis="connection")
+    tracker.on_commit(notice("commit", text="Hello there."))
+    events, segment = tracker.on_timed(notice("timed", text="Hello their.", tokens=tokens(
+        ("Hello", 0, 4000), ("their.", 4100, 8000))), epoch())
+    assert segment is not None and [w.text for w in segment.words] == ["Hello", "their."]
+    assert events[0][1]["text"] == "Hello their."
+    assert tracker.counters["timed_text_revised"] == 1
+
+
+def test_timed_notice_text_wins_over_token_text_when_it_matches():
+    tracker = SegmentTracker(timestamp_basis="connection")
+    tracker.on_commit(notice("commit", text="Hi there."))
+    events, _ = tracker.on_timed(notice("timed", text="Hello, there!", tokens=tokens(
+        ("hello", 0, 4000), ("there", 4100, 8000))), epoch())
+    assert events[0][1]["text"] == "Hello, there!"
+    assert [w["text"] for w in events[0][1]["words"]] == ["Hello,", "there!"]
 
 
 def test_missing_tokens_and_epoch_expiry_warn_missing():

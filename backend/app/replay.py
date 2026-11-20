@@ -130,11 +130,14 @@ class StreamValidator:
             if previous and (word.start_ms < previous.start_ms or word.end_ms < previous.end_ms):
                 raise StreamError("Out-of-order word times")
             previous = word
-        if normalize_text(" ".join(w.text for w in p.words)) != normalize_text(segment.text):
+        # An explicit timed `text` (provider revision) replaces the committed text.
+        target = p.text if p.text is not None else segment.text
+        if normalize_text(" ".join(w.text for w in p.words)) != normalize_text(target):
             raise StreamError("Timed words do not match committed text")
         words = [w.model_dump() for w in p.words]
 
         def apply():
+            segment.text = target
             segment.words = words
             self.word_ids.update(ids)
         return apply

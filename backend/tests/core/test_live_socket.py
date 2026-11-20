@@ -10,6 +10,7 @@ from live_helpers import (
     FRAME,
     ORIGIN,
     Recorder,
+    live_settings,
     command,
     live_client,
     make_runtime,
@@ -249,3 +250,79 @@ def test_timestamp_basis_through_fake_upstream(basis, origin, expect_cloud):
     assert bool(rec.of("transcript.timed")) == expect_cloud
     assert bool(rec.of("emotion.updated")) == expect_cloud
     assert [e["payload"]["text"] for e in rec.of("transcript.committed")] == ["Leave me alone."]
+
+
+
+def _timing_outcomes(rec):
+    return [e for e in rec.events if e["type"] in ("transcript.timed", "alignment.warning")]
+
+
+def _run_live(adapter, settings, epochs):
+    """Start; per epoch send frames and wait for that epoch's timing outcomes; Pause/Resume
+    between epochs; stop. `epochs` is a list of (frames, expected cumulative outcomes)."""
+    runtime = make_runtime(adapter, settings=settings)
+    with live_client(runtime) as client, client.websocket_connect("/ws/v1/session", headers=ORIGIN) as ws:
+        rec = Recorder(ws)
+        ws.send_text(command("session.start"))
+        rec.until_type("session.status", state="listening")
+        for index, (frames, outcomes) in enumerate(epochs):
+            if index:
+                ws.send_text(command("session.pause"))
+                rec.until_type("session.status", state="paused")
+                ws.send_text(command("session.resume"))
+                rec.until_type("session.status", state="listening")
+            send_frames(ws, frames)
+            if len(_timing_outcomes(rec)) < outcomes:
+                rec.until(lambda e: len(_timing_outcomes(rec)) >= outcomes)
+        ws.send_text(command("session.stop"))
+        rec.until_type("session.status", state="stopped")
+    return rec
+
+
+def test_connection_basis_setting_with_loose_text_match_places_cloud():
+    # The real adapter reports basis "unknown"; the operator setting supplies "connection".
+    # Timed words differ from the commit only in case and punctuation: the cloud still lands.
+    utterance = Utterance(after_samples=48000, text="I am SO angry, right now!", basis="unknown",
+                          words=[("i", 0.2, 0.4), ("am", 0.45, 0.7), ("so", 0.75, 1.0), ("angry", 1.05, 1.6),
+                                 (",", 1.6, 1.6001), ("right", 1.65, 1.9), ("now", 1.95, 2.4)])
+    rec = _run_live(FakeScribeAdapter(utterances=[utterance]),
+                    live_settings(scribe_timestamp_basis="connection"), [(125, 1)])
+    timed = rec.of("transcript.timed")[0]["payload"]
+    assert "text" not in timed
+    assert [w["text"] for w in timed["words"]] == ["I", "am", "SO", "angry,", "right", "now!"]
+    assert timed["words"][0]["start_ms"] == 200
+    assert rec.of("emotion.updated") and not rec.of("alignment.warning")
+
+
+def test_segment_basis_setting_times_first_commit_per_epoch_only():
+    # Segment-relative provider times (each segment starts at 0). Plan B places the first
+    # segment of each connection at the epoch origin and refuses to guess the second.
+    first = Utterance(after_samples=40000, text="Leave me alone.", basis="unknown",
+                      words=[("Leave", 0.1, 0.4), ("me", 0.5, 0.7), ("alone.", 0.8, 1.4)])
+    second = Utterance(after_samples=72000, text="Go away now.", basis="unknown",
+                       words=[("Go", 0.1, 0.4), ("away", 0.5, 0.8), ("now.", 0.9, 1.3)])
+    after_resume = Utterance(after_samples=40000, text="Still here.", basis="unknown",
+                             words=[("Still", 0.2, 0.6), ("here.", 0.7, 1.2)])
+    adapter = FakeScribeAdapter(by_epoch={1: [first, second], 2: [after_resume]})
+    rec = _run_live(adapter, live_settings(scribe_timestamp_basis="segment"), [(125, 2), (100, 3)])
+    outcomes = [(e["type"], e["payload"]["segment_id"]) for e in _timing_outcomes(rec)]
+    assert outcomes == [("transcript.timed", "seg-1"), ("alignment.warning", "seg-2"),
+                        ("transcript.timed", "seg-3")]
+    assert rec.of("alignment.warning")[0]["payload"]["code"] == "ALIGNMENT_BASIS_UNKNOWN"
+    timed = rec.of("transcript.timed")
+    assert timed[0]["payload"]["words"][0]["start_ms"] == 100  # epoch 1 origin is sample 0
+    assert timed[1]["payload"]["words"][0]["start_ms"] == 5000 + 200  # epoch 2 origin = 125 frames
+    assert {e["payload"]["segment_id"] for e in rec.of("emotion.updated")} <= {"seg-1", "seg-3"}
+
+
+def test_timed_text_revision_reaches_the_client_and_validates():
+    utterance = Utterance(after_samples=48000, text="I thought you would call.", basis="unknown",
+                          timed_text="I taught you would call.",
+                          words=[("I", 0.2, 0.4), ("taught", 0.45, 0.8), ("you", 0.85, 1.0), ("would", 1.05, 1.3),
+                                 ("call.", 1.35, 1.9)])
+    rec = _run_live(FakeScribeAdapter(utterances=[utterance]),
+                    live_settings(scribe_timestamp_basis="connection"), [(125, 1)])
+    timed = rec.of("transcript.timed")[0]["payload"]
+    assert timed["text"] == "I taught you would call."
+    assert rec.validator.segments["seg-1"].text == "I taught you would call."
+    assert rec.of("emotion.updated")

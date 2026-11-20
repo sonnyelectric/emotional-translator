@@ -108,7 +108,7 @@ export type TranscriptCommittedEvent = Envelope<
 >;
 export type TranscriptTimedEvent = Envelope<
   'transcript.timed',
-  { segment_id: string; language_code: string | null; words: Word[] }
+  { segment_id: string; language_code: string | null; words: Word[]; text?: string }
 >;
 export type EmotionUpdatedEvent = Envelope<'emotion.updated', AnnotationPayload>;
 export type EmotionRetractedEvent = Envelope<'emotion.retracted', AnnotationRevisionPayload>;

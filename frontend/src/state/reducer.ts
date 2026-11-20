@@ -212,13 +212,16 @@ function applyKnown(state: TranscriptState, event: ServerEvent): ApplyResult {
         if (prev && (w.start_ms < prev.start_ms || w.end_ms < prev.end_ms)) return reject(state, `out-of-order word ${w.word_id}`);
         prev = w;
       }
+      // An explicit timed `text` is a provider revision: it replaces the committed text.
+      const target = p.text ?? seg.text;
       const joined = normalizeText(p.words.map((w) => w.text).join(' '));
-      if (joined !== normalizeText(seg.text)) return reject(state, `timed text mismatch for ${p.segment_id}`);
+      if (joined !== normalizeText(target)) return reject(state, `timed text mismatch for ${p.segment_id}`);
       const wordOwner = { ...state.wordOwner };
       for (const w of p.words) wordOwner[w.word_id] = p.segment_id;
       const segments = state.segments.slice();
       segments[idx] = {
         ...seg,
+        text: target,
         timing_state: 'timed',
         words: p.words.map((w) => ({ ...w })),
         language_code: p.language_code ?? seg.language_code,

@@ -175,6 +175,10 @@ def analyse(result: dict) -> str:
         basis = "unknown (no timed words observed)"
     elif all(v == "connection" for v in verdicts) and len(timed) >= 2:
         basis = "connection-relative (starts continue past lead silence and never restart)"
+    elif "segment" in verdicts and verdicts[0] == "connection":
+        basis = ("segment-relative (a later commit restarted near 0), but the FIRST commit started after the "
+                 "lead silence -> SCRIBE_TIMESTAMP_BASIS=segment (plan B: clouds only on the first commit of "
+                 "each connection; press Pause then Resume before every line). Confirm on the second stream too.")
     elif "segment" in verdicts:
         basis = "segment-relative (a later commit restarted near 0); origin NOT supplied by provider -> keep 'unknown' for A"
     else:

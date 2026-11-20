@@ -39,6 +39,19 @@ Error classification (all 14 documented types, tested):
 5. Account has service access, quota, accepted terms.
 6. Millisecond-level precision of `start`/`end`.
 
+## Choosing `SCRIBE_TIMESTAMP_BASIS` from the smoke verdict
+
+| Smoke verdict (both fresh streams) | Set in `backend/.env` | What you get |
+|---|---|---|
+| connection-relative | `connection` | Clouds on every commit. Pause/Resume is optional. |
+| segment-relative, and the first commit started after the lead silence | `segment` | Plan B (`segments.py`, tested): only the **first commit of each connection** is timed, at the connection start; any later commit on the same connection gets `ALIGNMENT_BASIS_UNKNOWN` and shows captions only. Press Pause, then Resume, before every demo line, and speak exactly one line per Resume. |
+| segment-relative, first commit did not start after the lead silence | `unknown` | Captions only. No origin can be derived, so nothing is guessed. |
+| ambiguous / no timed words | `unknown` | Captions only. |
+
+Do not set `connection` for a segment-relative provider: later commits would land on the wrong words, and the bounds check only catches part of that.
+
+Word text matching (R2 in docs/REVIEW.md): timed words are matched to the committed text ignoring case, punctuation, spacing, Unicode form and token splits. If the words still differ, the timed notice's own text (or the words' own text) replaces the committed text via the optional `text` field on `transcript.timed` (docs/PROTOCOL.md) instead of dropping the cloud. `ALIGNMENT_TIMESTAMP_MISMATCH` now means only invalid timing (out of order, outside sent audio) or tokens with no letters or digits.
+
 ## Smoke command
 
 ```

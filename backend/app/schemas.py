@@ -182,6 +182,16 @@ class TimedPayload(WireModel):
     segment_id: WireId
     language_code: Language
     words: Annotated[list[Word], Field(min_length=1)]
+    # Present only when the provider's timed words differ from the committed text in more
+    # than case, punctuation or spacing: the timed text then replaces the segment text.
+    text: Text | None = None
+
+    @field_validator("text", mode="before")
+    @classmethod
+    def text_omitted_not_null(cls, value):
+        if value is None:
+            raise ValueError("text must be omitted, not null")
+        return value
 
     @field_validator("words")
     @classmethod

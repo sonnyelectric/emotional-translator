@@ -31,6 +31,8 @@ class Utterance:
     segment_origin_samples: int | None = None
     emit_timed: bool = True
     duplicate_timed: bool = False
+    # Text on the timed notice when it differs from the committed text (default: same).
+    timed_text: str | None = None
 
 
 class FakeScribeStream:
@@ -61,7 +63,7 @@ class FakeScribeStream:
             if utterance.emit_timed:
                 tokens = tuple(TimedToken(t, round(s * 16000), round(e * 16000)) for t, s, e in utterance.words)
                 for _ in range(2 if utterance.duplicate_timed else 1):
-                    self.push("timed", text=utterance.text, language_code="en", tokens=tokens,
+                    self.push("timed", text=utterance.timed_text or utterance.text, language_code="en", tokens=tokens,
                               timestamp_basis=utterance.basis,
                               segment_origin_samples=utterance.segment_origin_samples)
         hook = self.adapter.on_send
