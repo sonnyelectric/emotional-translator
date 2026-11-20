@@ -8,6 +8,7 @@ from .config import Settings, load_settings
 from .replay import FIXTURES_ROOT, ReplayCatalog, replay_router
 from .schemas import SCHEMA_VERSION
 from .session import LiveRuntime, build_live_runtime
+from .tune import tune_endpoint
 from .ws import session_endpoint
 
 
@@ -49,4 +50,7 @@ def create_app(
 
     app.include_router(replay_router(ReplayCatalog(fixtures_root)))
     app.add_api_websocket_route("/ws/v1/session", session_endpoint)
+    if settings.mode == "live":
+        # Dev-only tuning route (outside the v1 protocol): model scores, never transcript.
+        app.add_api_websocket_route("/ws/dev/tune", tune_endpoint)
     return app

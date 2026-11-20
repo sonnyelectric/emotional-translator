@@ -1,0 +1,126 @@
+.tune {
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--bg);
+}
+.tune-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px 24px;
+  padding: 14px 18px;
+  border: 1px solid rgba(242, 193, 78, 0.55);
+  background: rgba(242, 193, 78, 0.08);
+  border-radius: 14px;
+}
+.tune-head h1 {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+  color: #ffe1a1;
+}
+.tune-head p {
+  margin: 0;
+  max-width: 70ch;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.tune-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.tune-actions a.btn {
+  text-decoration: none;
+}
+.tune-model {
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  color: var(--text-dim);
+}
+.tune-model--ready {
+  color: var(--ok);
+  border-color: rgba(79, 209, 139, 0.5);
+}
+.tune-model--failed {
+  color: var(--error);
+}
+.tune-msg {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(242, 193, 78, 0.55);
+  background: rgba(242, 193, 78, 0.07);
+}
+.tune-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr) minmax(260px, 340px);
+  gap: 18px;
+  margin-top: 18px;
+  align-items: start;
+}
+.tune-note {
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  margin: 8px 4px 0;
+}
+.tune-scores th[scope='col'] {
+  display: table-cell;
+  text-align: right;
+  font-size: 11px;
+  color: var(--et-dim);
+  font-weight: 500;
+}
+.tune-scores th[scope='col']:first-child {
+  text-align: left;
+}
+.tune-scores td {
+  text-align: right;
+  padding-left: 12px;
+}
+.tune-thresholds {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  font-size: 13px;
+}
+.tune-thresholds div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.tune-thresholds dt {
+  color: var(--et-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.tune-thresholds dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.tune-sub {
+  font-size: 14px;
+  margin: 16px 0 6px;
+}
+.tune-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.tune-log li {
+  display: grid;
+  grid-template-columns: 44px 64px 1fr 1fr;
+  gap: 6px;
+  padding: 3px 0;
+  border-top: 1px solid var(--et-line);
+}
+@media (max-width: 1100px) {
+  .tune-grid {
+    grid-template-columns: 1fr;
+  }
+}

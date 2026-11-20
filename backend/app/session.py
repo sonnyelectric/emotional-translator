@@ -121,6 +121,9 @@ class LiveRuntime:
         self.emotion_ready = worker is not None and scheduler_factory is not None and policy is not None
         self.model_state = "loading" if self.emotion_ready else "failed"
         self.lease: LiveSession | None = None
+        # Dev tuning connections (app/tune.py), keyed by their own session id. They share the
+        # worker but never the lease, and never receive or emit v1 transcript events.
+        self.tune_sinks: dict[str, Any] = {}
         self.metrics = Metrics()
         self._tasks: list[asyncio.Task] = []
 
@@ -143,6 +146,10 @@ class LiveRuntime:
     async def _results(self) -> None:
         try:
             async for notice in self.worker.results():
+                tune = self.tune_sinks.get(notice.session_id)
+                if tune is not None:
+                    tune.on_notice(notice)
+                    continue
                 session = self.lease
                 if session is not None and session.session_id == notice.session_id:
                     session.on_window_notice(notice)
@@ -156,6 +163,9 @@ class LiveRuntime:
 
     def set_model_state(self, state: str) -> None:
         previous, self.model_state = self.model_state, state
+        if previous != state:
+            for tune in list(self.tune_sinks.values()):
+                tune.on_model_state(state)
         if previous != state and self.lease is not None:
             self.lease.on_model_state(previous, state)
 
