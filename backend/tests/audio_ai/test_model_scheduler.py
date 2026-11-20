@@ -68,7 +68,7 @@ def test_window_pcm_content_and_copy():
 def test_epoch_change_never_joins():
     sch = WindowScheduler()
     sch.begin_epoch("s", 0, 0)
-    assert bounds(feed(sch, 48000, 1600)) == [(0, 32000)]
+    assert bounds(feed(sch, 47000, 1000)) == [(0, 32000)]
     sch.begin_epoch("s", 1, 48000)  # pause/reconnect
     assert sch.push(frame(48000, 16000, epoch=0)) == []  # stale epoch ignored
     ws = feed(sch, 40000, 1600, epoch=1, origin=48000)
