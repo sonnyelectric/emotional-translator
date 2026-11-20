@@ -4,7 +4,11 @@
  */
 import type { Annotation, MismatchResult, Valence, VisibleCategory } from '../visual/contract';
 
-export const TEXT_SCORE_MIN = 0.9;
+/**
+ * Text-sentiment gate. 0.97 (not 0.90) because SST-2 misread two plain demo sentences at
+ * 0.907 and 0.945 (docs/REVIEW.md, Section 0); every intended mismatch line scores >= 0.9998.
+ */
+export const TEXT_SCORE_MIN = 0.97;
 /** Annotation opacity below this is a "faint" cloud (TDD faint range 0.14 to 0.30). */
 export const VISIBLE_OPACITY_MIN = 0.31;
 export const MIN_WORDS = 2;
@@ -52,7 +56,12 @@ export function dominantVoice(annotations: readonly Annotation[]): VisibleCatego
   return best;
 }
 
+/**
+ * Spec (SYNTHESIS mismatch rule 5): only happy versus angry/sad/fearful/disgusted can
+ * oppose the text. Surprised is ambiguous in valence and never flags.
+ */
 export function opposes(text: Valence, voice: VisibleCategory): boolean {
+  if (voice === 'surprised') return false;
   return VOICE_VALENCE[voice] !== text;
 }
 

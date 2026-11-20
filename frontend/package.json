@@ -13,7 +13,9 @@
     "preview": "vite preview",
     "preview:replay": "vite preview --mode replay",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
     "test:unit": "vitest run",
+    "check:fixtures": "vite-node scripts/fixture_sentiment.ts",
     "test:contract": "vitest run tests/contracts.test.ts",
     "install:browsers": "playwright install chromium",
     "test:e2e": "playwright test"

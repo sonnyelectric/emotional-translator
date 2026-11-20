@@ -10,7 +10,7 @@ Record after the live smoke passes and the rehearsal is done. Screen-record with
 | 2 | 0:08-0:18 | Press Start; say neutral: "The meeting starts at three o'clock tomorrow." | (spoken line only) | U |
 | 3 | 0:18-0:30 | Angry line: "I told you three times, and nobody listened!" Close-up of jagged cloud | "Jagged shape for an angry-sounding line." | U, C |
 | 4 | 0:30-0:40 | Sad line: "I just feel really tired of trying." Close-up of rounded cloud | "Different shape, not only a different color." | U |
-| 5 | 0:40-0:48 | Happy line: "We got the grant, I cannot believe it!" | (spoken line only) | U |
+| 5 | 0:40-0:48 | Happy line: "We got the grant, this is amazing!" | (spoken line only) | U |
 | 6 | 0:48-1:00 | Angry: "Oh great, that's just perfect." Show the "Words and voice differ" badge | "Words read positive, voice reads angry. We say they differ, not sarcasm." | D, U |
 | 7 | 1:00-1:08 | Click a phrase; show the inspector with relative scores | "Scores are relative model support, not certainty." | T, C |
 | 8 | 1:08-1:20 | Title card over a still of the architecture or the app: "ElevenLabs Scribe v3 Live: words + timing. emotion2vec+ Large: vocal tone, on this laptop. Backend aligns the two." | Read the card in one breath. | T |

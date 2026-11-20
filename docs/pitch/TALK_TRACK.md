@@ -26,7 +26,7 @@ Say each line into the mic with a pause between (exact delivery notes in `REHEAR
 1. Neutral: "The meeting starts at three o'clock tomorrow." POINT: words appear faint (provisional), then settle; little or no cloud. "Flat voice, no strong cue."
 2. Angry: "I told you three times, and nobody listened!" POINT: a jagged cloud around the words. "Jagged shape, warm color. Shape and color change with the detected cue, and so does intensity."
 3. Sad: "I just feel really tired of trying." POINT: a rounded, drooping cloud, slower. "Different shape, not only a different color, so it still works if you cannot tell the colors apart (R5 s5, WCAG 1.4.1)."
-4. Happy: "We got the grant, I cannot believe it!" POINT: buoyant lobed cloud.
+4. Happy: "We got the grant, this is amazing!" POINT: buoyant lobed cloud.
 5. Words versus voice: say angrily, "Oh great, that's just perfect." POINT: the "Words and voice differ" badge on that sentence. "The words read positive. The voice carries an angry cue. We do not say sarcasm. We say they differ. That can be sarcasm, a joke, a quote, or the model being wrong (R5 s4)."
 POINT: Click one phrase to open the inspector. "These are relative model scores for the 2-second window, not certainty."
 If a line misses, say so plainly: "That one missed. These are estimates, and I rehearsed these lines." Move on.

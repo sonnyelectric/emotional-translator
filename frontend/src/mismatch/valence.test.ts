@@ -32,16 +32,24 @@ describe('computeMismatch', () => {
   it.each(['angry', 'sad', 'fearful', 'disgusted'] as const)('positive text + %s voice differs', (v) => {
     expect(computeMismatch('s', text, pos, [a(v)]).differs).toBe(true);
   });
-  it.each(['happy', 'surprised'] as const)('negative text + %s voice differs', (v) => {
-    expect(computeMismatch('s', text, neg, [a(v)]).differs).toBe(true);
+  it('negative text + happy voice differs', () => {
+    expect(computeMismatch('s', text, neg, [a('happy')]).differs).toBe(true);
+  });
+  it('surprised voice never differs, whatever the text says', () => {
+    expect(computeMismatch('s', text, neg, [a('surprised')]).differs).toBe(false);
+    expect(computeMismatch('s', text, pos, [a('surprised')]).differs).toBe(false);
   });
   it('matching valence does not differ', () => {
     expect(computeMismatch('s', text, pos, [a('happy')]).differs).toBe(false);
     expect(computeMismatch('s', text, neg, [a('angry')]).differs).toBe(false);
   });
-  it('requires text score >= 0.9', () => {
-    expect(computeMismatch('s', text, { label: 'POSITIVE', score: 0.89 }, [a('angry')]).differs).toBe(false);
-    expect(computeMismatch('s', text, { label: 'POSITIVE', score: 0.9 }, [a('angry')]).differs).toBe(true);
+  it('requires text score >= 0.97', () => {
+    expect(computeMismatch('s', text, { label: 'POSITIVE', score: 0.969 }, [a('angry')]).differs).toBe(false);
+    expect(computeMismatch('s', text, { label: 'POSITIVE', score: 0.97 }, [a('angry')]).differs).toBe(true);
+  });
+  it('does not flag the two SST-2 misreads found in review (0.907, 0.945)', () => {
+    expect(computeMismatch('s', text, { label: 'NEGATIVE', score: 0.907 }, [a('happy')]).differs).toBe(false);
+    expect(computeMismatch('s', text, { label: 'POSITIVE', score: 0.945 }, [a('angry')]).differs).toBe(false);
   });
   it('requires a visible, non-faint annotation', () => {
     expect(computeMismatch('s', text, pos, []).differs).toBe(false);
