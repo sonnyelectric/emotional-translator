@@ -1,0 +1,1 @@
+"""A-owned alignment package."""
