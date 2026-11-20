@@ -200,10 +200,20 @@
 .layout {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  grid-template-areas:
+    'profile transcript'
+    'profile history';
+  grid-template-rows: auto 1fr;
   gap: 18px;
   padding: 18px 20px;
   align-items: start;
+}
+.transcript-panel {
+  grid-area: transcript;
+}
+.history {
+  grid-area: history;
 }
 .panel {
   background: linear-gradient(180deg, var(--panel-raised), var(--panel));
@@ -229,19 +239,20 @@
   font-size: 0.82rem;
 }
 .profile-panel {
+  grid-area: profile;
   position: sticky;
   top: 12px;
-}
-.profile-panel > :not(.panel-head) {
-  margin-left: 18px;
-  margin-right: 18px;
 }
 .panel-note {
   color: var(--text-faint);
   font-size: 0.8rem;
   line-height: 1.4;
-  margin-top: 4px;
-  margin-bottom: 16px;
+  margin: 10px 6px 0;
+}
+.settings-note {
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  margin: 10px 0 0;
 }
 
 .transcript-panel {
@@ -276,9 +287,7 @@
 }
 
 /* ---------- history ---------- */
-.history {
-  border-top: 1px solid var(--line);
-}
+
 .history-toggle {
   width: 100%;
   display: flex;
@@ -320,133 +329,12 @@
   max-width: min(360px, calc(100vw - 32px));
 }
 
-/* ---------- placeholder visuals (until BC2's components are wired) ---------- */
-.ph-transcript {
-  display: block;
-}
-.ph-seg {
-  display: inline;
-}
-.ph-seg[data-timing='pending'] {
-  color: var(--text);
-}
-.ph-phrase {
-  border-radius: 10px;
-  padding: 0 0.12em;
-  cursor: pointer;
-  transition:
-    background-color 0.35s var(--ease),
-    box-shadow 0.35s var(--ease);
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-.ph-label {
-  font-size: 0.45em;
-  vertical-align: super;
-  margin-left: 0.3em;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-.ph-partial {
-  color: var(--text-faint);
-  font-style: italic;
-}
-.ph-empty {
-  color: var(--text-faint);
-  font-size: 0.9rem;
-  margin: 18px 0 8px;
-}
-.ph-mix {
-  list-style: none;
-  padding: 0;
-  margin: 16px 0 8px;
-  display: grid;
-  gap: 10px;
-}
-.ph-mix li {
-  display: grid;
-  grid-template-columns: 82px 1fr 44px;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.88rem;
-  text-transform: capitalize;
-}
-.ph-mix-bar {
-  height: 8px;
-  border-radius: 99px;
-  background: var(--line);
-  overflow: hidden;
-}
-.ph-mix-bar span {
-  display: block;
-  height: 100%;
-  border-radius: 99px;
-}
-.ph-mix-val {
-  text-align: right;
-  color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
-}
-.ph-inspector {
-  position: relative;
-  background: var(--panel-raised);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
-  font-size: 0.9rem;
-}
-.ph-inspector h3 {
-  margin: 0 24px 6px 0;
-  font-size: 1rem;
-  text-transform: capitalize;
-}
-.ph-inspector table {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-}
-.ph-inspector th {
-  text-align: left;
-  font-weight: 500;
-  color: var(--text-dim);
-  text-transform: capitalize;
-}
-.ph-inspector td {
-  text-align: right;
-}
-.ph-caveat {
-  color: var(--text-faint);
-  font-size: 0.8rem;
-}
-.ph-close {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  background: transparent;
-  border: 0;
-  color: var(--text-dim);
-  font-size: 1.3rem;
-  cursor: pointer;
-}
-.ph-settings {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 22px;
-}
-.ph-settings legend {
-  font-weight: 650;
-  margin-bottom: 8px;
-}
-
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
+    grid-template-areas: 'transcript' 'history' 'profile';
+    grid-template-rows: auto;
   }
   .profile-panel {
     position: static;

@@ -35,7 +35,7 @@ export function TranscriptHistory({ segments, annotations, settings, onInspect, 
 
   if (segments.length === 0) return null;
   return (
-    <section className="history" aria-label="Transcript history" data-testid="history">
+    <section className="panel history" aria-label="Transcript history" data-testid="history">
       <button
         type="button"
         className="history-toggle"

@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 import './visual.css';
 import { ALL_LABELS, type PhraseInspectorProps } from './contract';
-import { GLYPH, LABEL_TEXT, DEFAULT_COLORS } from './palette';
+import { GLYPH, LABEL_TEXT, colorFor } from './palette';
 import { mismatchTooltip } from '../mismatch/valence';
 
 const sec = (ms: number) => (ms / 1000).toFixed(2) + 's';
 
-export function PhraseInspector({ annotation: a, onClose, phraseText, mismatch }: PhraseInspectorProps) {
+export function PhraseInspector({ annotation: a, onClose, phraseText, mismatch, palette = 'default' }: PhraseInspectorProps) {
   const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!a) return;
@@ -27,7 +27,7 @@ export function PhraseInspector({ annotation: a, onClose, phraseText, mismatch }
     <aside className="et-visual et-panel et-inspector" ref={ref} tabIndex={-1} aria-label="Phrase details">
       <header className="et-panel__head">
         <h2>
-          <span aria-hidden="true" style={{ color: DEFAULT_COLORS[a.primary] }}>
+          <span aria-hidden="true" style={{ color: colorFor(a.primary, palette) }}>
             {GLYPH[a.primary]}
           </span>{' '}
           {LABEL_TEXT[a.primary]}

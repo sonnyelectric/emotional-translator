@@ -53,7 +53,7 @@ export function EmotionProfile({ latest, settings }: EmotionProfileProps) {
   const sorted = latest
     ? [...RADAR_AXES].sort((a, b) => latest[b] - latest[a])
     : [...RADAR_AXES];
-  const top = sorted.slice(0, 3).map((c) => `${LABEL_TEXT[c]} ${pct(latest![c])}`);
+  const top = latest ? sorted.slice(0, 3).map((c) => `${LABEL_TEXT[c]} ${pct(latest[c])}`) : [];
   const lead = latest ? leader(latest) : null;
   const accent = lead ? colorFor(lead, settings.palette) : '#5fd4e6';
 

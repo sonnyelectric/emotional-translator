@@ -25,6 +25,7 @@ import {
   PhraseInspector,
   SettingsPanel,
   TranscriptView,
+  phraseTextFor,
   useMismatch,
   type VisualSettings,
 } from './visualBridge';
@@ -337,8 +338,9 @@ export function App() {
   const historyAnnotations = useMemo(() => selectAnnotationsForSegments(allAnnotations, history), [allAnnotations, history]);
   const latestScores = useMemo(() => selectLatestScores(state), [state]);
   const inspected = useMemo(() => selectAnnotation(state, inspectId), [state, inspectId]);
-  const mismatch = useMismatch(state.segments, allAnnotations);
+  const { results: mismatch, status: mismatchStatus } = useMismatch(state.segments, allAnnotations, settings.mismatch);
   const effectiveMismatch = settings.mismatch ? mismatch : undefined;
+  const inspectedText = useMemo(() => phraseTextFor(inspected, state.segments), [inspected, state.segments]);
   const partial = state.partial ? { partial_id: state.partial.partial_id, text: state.partial.text } : null;
   const lastCommitted = state.segments.length > 0 ? state.segments[state.segments.length - 1] : null;
 
@@ -385,7 +387,13 @@ export function App() {
 
       {settingsOpen && (
         <div id="settings-drawer" className="settings-drawer panel">
-          <SettingsPanel settings={settings} onChange={setSettings} />
+          <SettingsPanel settings={settings} onChange={setSettings} mismatchAvailable={mismatchStatus !== 'unavailable'} />
+          {settings.mismatch && mismatchStatus === 'loading' ? (
+            <p className="settings-note">Words-vs-voice text model is warming up (first use downloads about 68 MB).</p>
+          ) : null}
+          {mismatchStatus === 'unavailable' ? (
+            <p className="settings-note">Words-vs-voice check is off: the text model could not load.</p>
+          ) : null}
         </div>
       )}
 
@@ -402,11 +410,7 @@ export function App() {
       />
 
       <main className="layout">
-        <aside className="panel profile-panel" aria-labelledby="profile-title">
-          <div className="panel-head">
-            <h2 id="profile-title">Emotion profile</h2>
-            <span className="panel-sub">Latest analyzed phrase</span>
-          </div>
+        <aside className="profile-panel" aria-label="Emotion profile">
           <EmotionProfile latest={latestScores} settings={settings} />
           <p className="panel-note">
             Detected vocal cues from the emotion2vec+ model, not a reading of anyone&apos;s feelings.
@@ -438,20 +442,22 @@ export function App() {
                 settings={settings}
                 onInspect={setInspectId}
                 mismatch={effectiveMismatch}
+                selectedAnnotationId={inspectId}
               />
             )}
           </div>
           <div className="sr-only" aria-live="polite">
             {lastCommitted ? lastCommitted.text : ''}
           </div>
-          <TranscriptHistory
-            segments={history}
-            annotations={historyAnnotations}
-            settings={settings}
-            onInspect={setInspectId}
-            mismatch={effectiveMismatch}
-          />
         </section>
+
+        <TranscriptHistory
+          segments={history}
+          annotations={historyAnnotations}
+          settings={settings}
+          onInspect={setInspectId}
+          mismatch={effectiveMismatch}
+        />
       </main>
 
       <SessionControls
@@ -471,7 +477,13 @@ export function App() {
 
       {inspected && (
         <div className="inspector-wrap">
-          <PhraseInspector annotation={inspected} onClose={() => setInspectId(null)} />
+          <PhraseInspector
+            annotation={inspected}
+            onClose={() => setInspectId(null)}
+            phraseText={inspectedText}
+            mismatch={effectiveMismatch?.get(inspected.segment_id) ?? null}
+            palette={settings.palette}
+          />
         </div>
       )}
     </div>

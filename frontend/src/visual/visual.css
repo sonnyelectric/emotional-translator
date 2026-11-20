@@ -30,9 +30,9 @@
   z-index: 1;
 }
 .et-seg {
-  margin: 0 0 1.05em;
+  margin: 0 0 0.9em;
   font-size: clamp(22px, 2.6vw, 34px);
-  line-height: 1.75;
+  line-height: 1.95;
   font-weight: 500;
   letter-spacing: -0.005em;
   text-wrap: pretty;
@@ -42,14 +42,22 @@
   border-radius: 6px;
 }
 .et-word--ann {
-  cursor: pointer;
   font-weight: 600;
-  /* keeps text readable over the lightest clouds without a blur filter */
-  text-shadow: 0 1px 2px rgba(8, 14, 26, 0.85), 0 0 1px rgba(8, 14, 26, 0.9);
+  color: #ffffff;
+  /* keeps text crisp on the tinted wash */
+  text-shadow: 0 1px 2px rgba(8, 14, 26, 0.7);
 }
-.et-word--ann:hover {
+.et-phrase {
+  cursor: pointer;
+  border-radius: 8px;
+}
+.et-phrase:hover .et-word--ann {
   text-decoration: underline dotted rgba(255, 255, 255, 0.55);
   text-underline-offset: 6px;
+}
+.et-phrase:focus-visible {
+  outline: 2px solid var(--et-accent);
+  outline-offset: 6px;
 }
 .et-word:focus-visible {
   outline: 2px solid var(--et-accent);

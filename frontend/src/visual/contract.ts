@@ -126,6 +126,8 @@ export interface PhraseInspectorProps {
   phraseText?: string;
   /** Optional mismatch result for the annotation's segment. */
   mismatch?: MismatchResult | null;
+  /** Palette for the header glyph (defaults to 'default'). */
+  palette?: PaletteName;
 }
 
 export interface SettingsPanelProps {

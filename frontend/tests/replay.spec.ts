@@ -43,7 +43,7 @@ test.describe('G1 replay', () => {
     await page.getByTestId('history-toggle').click();
     const history = page.getByTestId('history');
     await expect(history.locator('[data-segment-id="seg-1"]')).toBeVisible();
-    await expect(history.locator('[data-annotation-id="a-seg-2"]')).toHaveAttribute('data-state', 'final');
+    await expect(history.locator('[data-annotation-id="a-seg-2"]')).toHaveAttribute('data-state', 'finalized');
 
     // No mic, no WebSocket in Replay.
     const counts = await page.evaluate(() => {

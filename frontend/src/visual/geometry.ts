@@ -91,17 +91,17 @@ export interface ShapeStyle {
 
 export const SHAPE_STYLES: Record<CloudShape, ShapeStyle> = {
   // angry: long irregular spikes, straight edges, restless
-  jagged: { amp: 0.36, spike: 1, lobeLen: 0.5, jitter: 0.7, droop: 0, speed: 1.4, tremble: 0.02, wave: 0, stroke: 1.5, inset: 0 },
+  jagged: { amp: 0.22, spike: 1, lobeLen: 0.5, jitter: 0.6, droop: 0, speed: 1.4, tremble: 0.02, wave: 0, stroke: 1.2, inset: 0 },
   // sad: big soft lobes, sagging, slow
-  rounded: { amp: 0.2, spike: 0, lobeLen: 2.1, jitter: 0.35, droop: 0.3, speed: 0.35, tremble: 0, wave: 0, stroke: 1.4, inset: 0 },
+  rounded: { amp: 0.2, spike: 0, lobeLen: 2.1, jitter: 0.35, droop: 0.22, speed: 0.35, tremble: 0, wave: 0, stroke: 1.1, inset: 0 },
   // happy: bouncy round lobes, lifted, lively
-  radial: { amp: 0.17, spike: 0, lobeLen: 1.35, jitter: 0.15, droop: -0.14, speed: 1.1, tremble: 0, wave: 0, stroke: 1.4, inset: 0 },
+  radial: { amp: 0.17, spike: 0, lobeLen: 1.35, jitter: 0.15, droop: -0.1, speed: 1.1, tremble: 0, wave: 0, stroke: 1.1, inset: 0 },
   // fearful: thin, narrow outline with a fast small tremble
-  trembling: { amp: 0.05, spike: 0, lobeLen: 0.8, jitter: 0.5, droop: 0, speed: 2.6, tremble: 0.07, wave: 0, stroke: 1.1, inset: 0.1 },
+  trembling: { amp: 0.05, spike: 0, lobeLen: 0.8, jitter: 0.5, droop: 0, speed: 2.6, tremble: 0.07, wave: 0, stroke: 1, inset: 0.04 },
   // surprised: short regular starburst
-  burst: { amp: 0.3, spike: 1, lobeLen: 0.9, jitter: 0.06, droop: 0, speed: 0.9, tremble: 0, wave: 0, stroke: 1.5, inset: 0 },
+  burst: { amp: 0.22, spike: 1, lobeLen: 0.9, jitter: 0.06, droop: 0, speed: 0.9, tremble: 0, wave: 0, stroke: 1.2, inset: 0 },
   // disgusted: asymmetric slow wave
-  wavy: { amp: 0.13, spike: 0, lobeLen: 3.2, jitter: 0.2, droop: 0.05, speed: 0.6, tremble: 0, wave: 0.28, stroke: 1.4, inset: 0 },
+  wavy: { amp: 0.13, spike: 0, lobeLen: 3.2, jitter: 0.2, droop: 0.05, speed: 0.6, tremble: 0, wave: 0.28, stroke: 1.1, inset: 0 },
 };
 
 export const CATEGORY_SHAPE: Record<VisibleCategory, CloudShape> = {
@@ -174,6 +174,11 @@ export interface BlobOptions {
 }
 
 const HULL_POWER = 3.2; // superellipse exponent: pill-like hull that covers text corners
+/**
+ * Outline displacement is flattened vertically so spikes and lobes grow sideways and
+ * mostly stay out of the neighbouring lines; horizontal ends keep the full silhouette.
+ */
+const VERTICAL_DISP = 0.6;
 
 /** Number of outline points for a run (even, bounded). */
 export function pointCount(w: number, h: number): number {
@@ -189,12 +194,13 @@ const sgnPow = (v: number, p: number) => Math.sign(v) * Math.pow(Math.abs(v), p)
 export function blobPoints(run: Run, style: ShapeStyle, opts: BlobOptions): Pt[] {
   const { seed, t, intensity } = opts;
   const size = 1 + 0.25 * clamp01(intensity);
-  const padX = opts.padX ?? Math.max(6, run.h * 0.35);
-  const padY = opts.padY ?? Math.max(3, run.h * 0.12);
+  // Generous padding: the hull clears every glyph, so displacement never cuts into text.
+  const padX = opts.padX ?? Math.max(10, run.h * 0.5);
+  const padY = opts.padY ?? Math.max(5, run.h * 0.2);
   const cx = run.x + run.w / 2;
   const cy = run.y + run.h / 2;
   const rx = ((run.w + 2 * padX) / 2) * (1 - style.inset * 0.3);
-  const ry = ((run.h + 2 * padY) / 2) * (1 + (size - 1) * 0.9) * (1 - style.inset);
+  const ry = ((run.h + 2 * padY) / 2) * (1 + (size - 1) * 0.5) * (1 - style.inset);
   const n = pointCount(run.w, run.h);
   const rand = rng(seed);
   const jit: number[] = [];
@@ -225,14 +231,15 @@ export function blobPoints(run: Run, style: ShapeStyle, opts: BlobOptions): Pt[]
 
     // spike profile: alternating long/short, irregular by jitter
     const long = i % 2 === 1;
-    const spikeH = long ? 0.55 + 0.45 * (1 - style.jitter * jit[i]) : -0.35 * (1 - style.jitter * 0.5 * jit[i]);
+    // valleys sit on the padded hull (never inside it), so spikes do not bite into glyphs
+    const spikeH = long ? 0.55 + 0.45 * (1 - style.jitter * jit[i]) : 0.04 * jit[i];
     const spikeBreath = 1 + 0.12 * Math.sin(breathe * 1.7 + ph[i]);
     const spike = spikeH * spikeBreath;
 
     // lobe profile: smooth scallops around the perimeter, breathing slowly
     const lobePhase = u * Math.PI * 2 * lobes + phase0 + breathe * 0.9;
     const lobeSize = 1 + style.jitter * (jit[(i * 7) % n] - 0.5);
-    const lobe = (Math.sin(lobePhase) * 0.5 + 0.35) * lobeSize;
+    const lobe = (Math.sin(lobePhase) * 0.5 + 0.4) * lobeSize;
 
     let d = style.spike * spike + (1 - style.spike) * lobe;
     // asymmetric wave (disgusted): low-frequency sway, different top and bottom
@@ -242,7 +249,7 @@ export function blobPoints(run: Run, style: ShapeStyle, opts: BlobOptions): Pt[]
     const disp = d * amp;
 
     let x = cx + x0 + nx * disp;
-    let y = cy + y0 + ny * disp;
+    let y = cy + y0 + ny * disp * VERTICAL_DISP;
     // droop: sag the lower half, lift for negative values
     const lowerWeight = Math.max(0, s);
     y += style.droop * run.h * lowerWeight * (0.6 + 0.4 * Math.sin(breathe * 0.7 + phase0));

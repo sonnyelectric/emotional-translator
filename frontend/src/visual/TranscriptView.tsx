@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import './visual.css';
-import type { Annotation, TranscriptViewProps } from './contract';
+import type { Annotation, TimedWord, TranscriptViewProps } from './contract';
 import { CloudLayer } from './CloudLayer';
 import type { CloudSpec } from './cloudEngine';
 import { CATEGORY_SHAPE, lineRuns, sameRuns, type Run } from './geometry';
@@ -136,36 +136,38 @@ export function TranscriptView({
           return (
             <p className="et-seg" key={seg.segment_id} data-segment-id={seg.segment_id}>
               {seg.words && seg.words.length ? (
-                seg.words.map((w, i) => {
-                  const owner = wordOwner.get(w.word_id);
-                  const isStart = owner && owner.start_word_id === w.word_id;
-                  return (
+                groupWords(seg.words, wordOwner).map((g, gi) => {
+                  const lead = gi > 0 ? ' ' : null;
+                  const text = g.words.map((w, i) => (
                     <span key={w.word_id}>
                       {i > 0 ? ' ' : null}
-                      <span
-                        className={owner ? 'et-word et-word--ann' : 'et-word'}
-                        data-word-id={w.word_id}
-                        data-annotation-id={owner?.annotation_id}
-                        role={isStart ? 'button' : undefined}
-                        tabIndex={isStart ? 0 : undefined}
-                        aria-label={
-                          isStart
-                            ? `Vocal cue: ${LABEL_TEXT[owner.primary]}, relative model support ${Math.round(owner.support * 100)} percent. Open details.`
-                            : undefined
-                        }
-                        onClick={owner ? () => onInspect(owner.annotation_id) : undefined}
-                        onKeyDown={
-                          isStart
-                            ? (e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                  e.preventDefault();
-                                  onInspect(owner.annotation_id);
-                                }
-                              }
-                            : undefined
-                        }
-                      >
+                      <span className={g.owner ? 'et-word et-word--ann' : 'et-word'} data-word-id={w.word_id}>
                         {w.text}
+                      </span>
+                    </span>
+                  ));
+                  if (!g.owner) return <span key={g.words[0].word_id}>{lead}{text}</span>;
+                  const owner = g.owner;
+                  return (
+                    <span key={g.words[0].word_id}>
+                      {lead}
+                      <span
+                        className="et-phrase"
+                        data-annotation-id={owner.annotation_id}
+                        data-primary={owner.primary}
+                        data-state={owner.state}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${g.words.map((w) => w.text).join(' ')}. Vocal cue: ${LABEL_TEXT[owner.primary]}, relative model support ${Math.round(owner.support * 100)} percent. Open details.`}
+                        onClick={() => onInspect(owner.annotation_id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onInspect(owner.annotation_id);
+                          }
+                        }}
+                      >
+                        {text}
                       </span>
                     </span>
                   );
@@ -195,4 +197,21 @@ export function TranscriptView({
       ))}
     </div>
   );
+}
+
+interface WordGroup {
+  owner: Annotation | undefined;
+  words: TimedWord[];
+}
+
+/** Consecutive words with the same owning annotation form one clickable phrase. */
+function groupWords(words: readonly TimedWord[], owners: Map<string, Annotation>): WordGroup[] {
+  const out: WordGroup[] = [];
+  for (const w of words) {
+    const owner = owners.get(w.word_id);
+    const last = out[out.length - 1];
+    if (last && last.owner?.annotation_id === owner?.annotation_id) last.words.push(w);
+    else out.push({ owner, words: [w] });
+  }
+  return out;
 }
