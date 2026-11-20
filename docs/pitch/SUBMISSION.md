@@ -6,7 +6,7 @@ Required: working app or reproducible demo, short backup video, user and problem
 **Emotional Translator**: live captions that also show how something was said.
 
 ## User and problem
-People who read captions, especially people with hearing loss, get the words but not the tone. A line like "I'm fine" looks the same whether it was said warmly or through tears. The WHO projects nearly 2.5 billion people will have some degree of hearing loss by 2050, and about 15 percent of US adults (37.5 million) report some trouble hearing (self-reported, not a count of Deaf people) (R3 s1). A 2023 CHI study with 16 Deaf and hard-of-hearing participants found an emotion-based caption style beat conventional captions at showing emotion and emphasis, at some cost to legibility (R3 s1). Studies are small, so we treat the need as supported by early research, not proven. Other possible users (cochlear-implant users, language learners, some neurodivergent people) are hypotheses, and we position the tool as an optional second channel, not a fix for anyone (R3 s2-s4).
+People who read captions, especially people with hearing loss, get the words but not the tone. A line like "I'm fine" looks the same whether it was said warmly or through tears. The WHO projects nearly 2.5 billion people will have some degree of hearing loss by 2050, and about 15 percent of US adults (37.5 million) report some trouble hearing (self-reported, not a count of Deaf people) (R3 s1). A 2023 CHI study with 16 Deaf and hard-of-hearing participants found an emotion-based caption style beat conventional captions at showing emotion and emphasis, at some cost to legibility (R3 s1). Another study with 28 DHH viewers found no significant difference between three emotive caption styles (SYNTHESIS s4). Studies are small, so we treat the need as supported by early research, not proven. Other possible users (cochlear-implant users, language learners, some neurodivergent people) are hypotheses, and we position the tool as an optional second channel, not a fix for anyone (R3 s2-s4).
 
 ## What it does
 - Streams live speech and shows the transcript, with provisional words that settle into stable text.
@@ -34,7 +34,7 @@ The browser captures mic audio (AudioWorklet, 16 kHz PCM) and streams it to a Fa
 - Live audio goes to ElevenLabs for transcription; we have not reviewed their retention terms (R4 s5).
 - Text sentiment is a binary movie-review model; it can be noisy on short lines (R5 s4).
 - Not validated for accessibility use. No clinical claims. EU deployment (AI Act Art. 5(1)(f), workplace and education) not assessed (R3 s6).
-- Prior art: Google Expressive Captions and RIT research exist (R4 s1). We did not find a shipped caption product with a words-vs-voice flag (not proof of absence).
+- Prior art: Google Expressive Captions (Android, English-only, US/UK/Canada/Australia) and RIT research exist (R4 s1, SYNTHESIS s3). We did not find a shipped caption product with a words-vs-voice flag (not proof of absence).
 
 ## Reproducing the demo
 See `docs/SETUP.md` and `docs/DEMO.md`. Live mode needs an ElevenLabs key and the downloaded model. Keyless replay: [FILL exact command (for example the replay start or `npm run build:replay`) and the fixture name once verified].
