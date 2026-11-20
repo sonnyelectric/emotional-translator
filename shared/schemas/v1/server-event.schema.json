@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/server-event.schema.json",
+  "title": "Known server events, v1",
+  "oneOf": [
+    {
+      "$ref": "session.status.schema.json"
+    },
+    {
+      "$ref": "transcript.partial.schema.json"
+    },
+    {
+      "$ref": "transcript.committed.schema.json"
+    },
+    {
+      "$ref": "transcript.timed.schema.json"
+    },
+    {
+      "$ref": "emotion.updated.schema.json"
+    },
+    {
+      "$ref": "emotion.retracted.schema.json"
+    },
+    {
+      "$ref": "emotion.finalized.schema.json"
+    },
+    {
+      "$ref": "alignment.warning.schema.json"
+    },
+    {
+      "$ref": "session.warning.schema.json"
+    },
+    {
+      "$ref": "session.error.schema.json"
+    },
+    {
+      "$ref": "session.reset.schema.json"
+    }
+  ]
+}

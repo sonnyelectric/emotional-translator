@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "source": "saved_result",
+  "default_fixture": "replay_demo",
+  "fixtures": [
+    {
+      "id": "replay_demo",
+      "file": "replay_demo.jsonl",
+      "case_name": "Vertical slice with revision, wrap and history",
+      "duration_ms": 18600,
+      "provenance": "synthetic_example"
+    },
+    {
+      "id": "replay_anger_sad",
+      "file": "replay_anger_sad.jsonl",
+      "case_name": "Adjacent angry and sad phrases with a draft morph",
+      "duration_ms": 7240,
+      "provenance": "synthetic_example"
+    },
+    {
+      "id": "replay_neutral",
+      "file": "replay_neutral.jsonl",
+      "case_name": "Timed neutral speech without an annotation",
+      "duration_ms": 4300,
+      "provenance": "synthetic_example"
+    },
+    {
+      "id": "replay_mixed",
+      "file": "replay_mixed.jsonl",
+      "case_name": "Two supported categories in one gradient",
+      "duration_ms": 4050,
+      "provenance": "synthetic_example"
+    },
+    {
+      "id": "replay_delayed_timing",
+      "file": "replay_delayed_timing.jsonl",
+      "case_name": "An earlier commit receives timing after a newer partial",
+      "duration_ms": 4850,
+      "provenance": "synthetic_example"
+    },
+    {
+      "id": "replay_failures",
+      "file": "replay_failures.jsonl",
+      "case_name": "Saved service warnings with transcript preservation",
+      "duration_ms": 5400,
+      "provenance": "synthetic_example"
+    },
+    {
+      "id": "replay_retraction",
+      "file": "replay_retraction.jsonl",
+      "case_name": "Uncertain faint draft suppressed before finalization",
+      "duration_ms": 3910,
+      "provenance": "synthetic_example"
+    }
+  ]
+}

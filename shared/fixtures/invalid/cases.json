@@ -1,0 +1,2551 @@
+[
+  {
+    "id": "missing_session_id",
+    "layer": "schema",
+    "schema": "server-event",
+    "instance": {
+      "schema_version": "1.0",
+      "type": "transcript.partial",
+      "seq": 2,
+      "issued_at_ms": 420,
+      "payload": {
+        "partial_id": "p-1",
+        "text": "For the record",
+        "language_code": "en"
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "bad_session_state",
+    "layer": "schema",
+    "schema": "server-event",
+    "instance": {
+      "schema_version": "1.0",
+      "type": "session.status",
+      "session_id": "s-live",
+      "seq": 1,
+      "issued_at_ms": 0,
+      "payload": {
+        "state": "recording",
+        "mode": "live",
+        "scribe": "connecting",
+        "emotion_model": "loading",
+        "detail": null
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "missing_live_format",
+    "layer": "schema",
+    "schema": "server-event",
+    "instance": {
+      "schema_version": "1.0",
+      "type": "session.status",
+      "session_id": "s-live",
+      "seq": 2,
+      "issued_at_ms": 320,
+      "payload": {
+        "state": "listening",
+        "mode": "live",
+        "scribe": "connected",
+        "emotion_model": "ready",
+        "detail": null
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "replay_format",
+    "layer": "schema",
+    "schema": "server-event",
+    "instance": {
+      "schema_version": "1.0",
+      "type": "session.status",
+      "session_id": "saved-demo",
+      "seq": 1,
+      "issued_at_ms": 0,
+      "payload": {
+        "state": "listening",
+        "mode": "replay",
+        "scribe": "not_required",
+        "emotion_model": "not_required",
+        "detail": null,
+        "sample_rate_hz": 16000,
+        "channels": 1,
+        "sample_format": "s16le"
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "missing_score_label",
+    "layer": "schema",
+    "schema": "server-event",
+    "instance": {
+      "schema_version": "1.0",
+      "type": "emotion.updated",
+      "session_id": "saved-demo",
+      "seq": 9,
+      "issued_at_ms": 5000,
+      "payload": {
+        "annotation_id": "a-seg-2",
+        "revision": 1,
+        "segment_id": "seg-2",
+        "start_word_id": "seg-2:w3",
+        "end_word_id": "seg-2:w9",
+        "start_ms": 3091,
+        "end_ms": 4470,
+        "state": "draft",
+        "primary": "angry",
+        "secondary": null,
+        "scores": {
+          "angry": 0.54,
+          "disgusted": 0.03,
+          "fearful": 0.05,
+          "happy": 0.04,
+          "neutral": 0.12,
+          "other": 0.03,
+          "surprised": 0.03,
+          "unknown": 0.01
+        },
+        "support": 0.54,
+        "visual_intensity": 0.8533,
+        "opacity": 0.4328,
+        "shape": "jagged",
+        "color": "#DC4545",
+        "blend": null
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "visible_neutral",
+    "layer": "schema",
+    "schema": "server-event",
+    "instance": {
+      "schema_version": "1.0",
+      "type": "emotion.updated",
+      "session_id": "saved-demo",
+      "seq": 9,
+      "issued_at_ms": 5000,
+      "payload": {
+        "annotation_id": "a-seg-2",
+        "revision": 1,
+        "segment_id": "seg-2",
+        "start_word_id": "seg-2:w3",
+        "end_word_id": "seg-2:w9",
+        "start_ms": 3091,
+        "end_ms": 4470,
+        "state": "draft",
+        "primary": "neutral",
+        "secondary": null,
+        "scores": {
+          "angry": 0.54,
+          "disgusted": 0.03,
+          "fearful": 0.05,
+          "happy": 0.04,
+          "neutral": 0.12,
+          "other": 0.03,
+          "sad": 0.15,
+          "surprised": 0.03,
+          "unknown": 0.01
+        },
+        "support": 0.54,
+        "visual_intensity": 0.8533,
+        "opacity": 0.4328,
+        "shape": "jagged",
+        "color": "#DC4545",
+        "blend": null
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "wrong_shape",
+    "layer": "schema",
+    "schema": "server-event",
+    "instance": {
+      "schema_version": "1.0",
+      "type": "emotion.updated",
+      "session_id": "saved-demo",
+      "seq": 9,
+      "issued_at_ms": 5000,
+      "payload": {
+        "annotation_id": "a-seg-2",
+        "revision": 1,
+        "segment_id": "seg-2",
+        "start_word_id": "seg-2:w3",
+        "end_word_id": "seg-2:w9",
+        "start_ms": 3091,
+        "end_ms": 4470,
+        "state": "draft",
+        "primary": "angry",
+        "secondary": null,
+        "scores": {
+          "angry": 0.54,
+          "disgusted": 0.03,
+          "fearful": 0.05,
+          "happy": 0.04,
+          "neutral": 0.12,
+          "other": 0.03,
+          "sad": 0.15,
+          "surprised": 0.03,
+          "unknown": 0.01
+        },
+        "support": 0.54,
+        "visual_intensity": 0.8533,
+        "opacity": 0.4328,
+        "shape": "rounded",
+        "color": "#DC4545",
+        "blend": null
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "client_replay_start",
+    "layer": "schema",
+    "schema": "client-command",
+    "instance": {
+      "schema_version": "1.0",
+      "type": "session.start",
+      "payload": {
+        "mode": "replay"
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "client_extra_fields",
+    "layer": "schema",
+    "schema": "client-command",
+    "instance": {
+      "schema_version": "1.0",
+      "type": "session.pause",
+      "payload": {},
+      "seq": 2
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "server_as_client",
+    "layer": "schema",
+    "schema": "client-command",
+    "instance": {
+      "schema_version": "1.0",
+      "type": "session.status",
+      "session_id": "s-live",
+      "seq": 2,
+      "issued_at_ms": 320,
+      "payload": {
+        "state": "listening",
+        "mode": "live",
+        "scribe": "connected",
+        "emotion_model": "ready",
+        "detail": null,
+        "sample_rate_hz": 16000,
+        "channels": 1,
+        "sample_format": "s16le"
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "unsupported_version",
+    "layer": "schema",
+    "schema": "server-event",
+    "instance": {
+      "schema_version": "2.0",
+      "type": "transcript.partial",
+      "session_id": "saved-demo",
+      "seq": 2,
+      "issued_at_ms": 420,
+      "payload": {
+        "partial_id": "p-1",
+        "text": "For the record",
+        "language_code": "en"
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "invalid_nan",
+    "layer": "parse",
+    "raw": "{\"support\":NaN}",
+    "expected": "reject"
+  },
+  {
+    "id": "invalid_infinity",
+    "layer": "parse",
+    "raw": "{\"support\":Infinity}",
+    "expected": "reject"
+  },
+  {
+    "id": "non_finite_overflow",
+    "layer": "parse",
+    "raw": "{\"support\":1e9999}",
+    "expected": "reject"
+  },
+  {
+    "id": "reversed_word_time",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-demo",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 3,
+        "issued_at_ms": 960,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record, everyone arrived",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 4,
+        "issued_at_ms": 2200,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "For the record, everyone arrived on time.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-demo",
+        "seq": 5,
+        "issued_at_ms": 2420,
+        "payload": {
+          "segment_id": "seg-1",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-1:w0",
+              "text": "For",
+              "start_ms": 150,
+              "end_ms": 378
+            },
+            {
+              "word_id": "seg-1:w1",
+              "text": "the",
+              "start_ms": 390,
+              "end_ms": 618
+            },
+            {
+              "word_id": "seg-1:w2",
+              "text": "record,",
+              "start_ms": 630,
+              "end_ms": 858
+            },
+            {
+              "word_id": "seg-1:w3",
+              "text": "everyone",
+              "start_ms": 870,
+              "end_ms": 1098
+            },
+            {
+              "word_id": "seg-1:w4",
+              "text": "arrived",
+              "start_ms": 1110,
+              "end_ms": 1338
+            },
+            {
+              "word_id": "seg-1:w5",
+              "text": "on",
+              "start_ms": 1350,
+              "end_ms": 1578
+            },
+            {
+              "word_id": "seg-1:w6",
+              "text": "time.",
+              "start_ms": 1590,
+              "end_ms": 1830
+            }
+          ]
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 6,
+        "issued_at_ms": 2770,
+        "payload": {
+          "partial_id": "p-2",
+          "text": "I asked once",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 7,
+        "issued_at_ms": 4650,
+        "payload": {
+          "segment_id": "seg-2",
+          "text": "I asked once, and I am tired of being ignored.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "transcript.timed",
+      "session_id": "saved-demo",
+      "seq": 8,
+      "issued_at_ms": 4760,
+      "payload": {
+        "segment_id": "seg-2",
+        "language_code": "en",
+        "words": [
+          {
+            "word_id": "seg-2:w0",
+            "text": "I",
+            "start_ms": 2500,
+            "end_ms": 2499
+          },
+          {
+            "word_id": "seg-2:w1",
+            "text": "asked",
+            "start_ms": 2697,
+            "end_ms": 2882
+          },
+          {
+            "word_id": "seg-2:w2",
+            "text": "once,",
+            "start_ms": 2894,
+            "end_ms": 3079
+          },
+          {
+            "word_id": "seg-2:w3",
+            "text": "and",
+            "start_ms": 3091,
+            "end_ms": 3276
+          },
+          {
+            "word_id": "seg-2:w4",
+            "text": "I",
+            "start_ms": 3288,
+            "end_ms": 3473
+          },
+          {
+            "word_id": "seg-2:w5",
+            "text": "am",
+            "start_ms": 3485,
+            "end_ms": 3670
+          },
+          {
+            "word_id": "seg-2:w6",
+            "text": "tired",
+            "start_ms": 3682,
+            "end_ms": 3867
+          },
+          {
+            "word_id": "seg-2:w7",
+            "text": "of",
+            "start_ms": 3879,
+            "end_ms": 4064
+          },
+          {
+            "word_id": "seg-2:w8",
+            "text": "being",
+            "start_ms": 4076,
+            "end_ms": 4261
+          },
+          {
+            "word_id": "seg-2:w9",
+            "text": "ignored.",
+            "start_ms": 4273,
+            "end_ms": 4470
+          }
+        ]
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "duplicate_word_id",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-demo",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 3,
+        "issued_at_ms": 960,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record, everyone arrived",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 4,
+        "issued_at_ms": 2200,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "For the record, everyone arrived on time.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-demo",
+        "seq": 5,
+        "issued_at_ms": 2420,
+        "payload": {
+          "segment_id": "seg-1",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-1:w0",
+              "text": "For",
+              "start_ms": 150,
+              "end_ms": 378
+            },
+            {
+              "word_id": "seg-1:w1",
+              "text": "the",
+              "start_ms": 390,
+              "end_ms": 618
+            },
+            {
+              "word_id": "seg-1:w2",
+              "text": "record,",
+              "start_ms": 630,
+              "end_ms": 858
+            },
+            {
+              "word_id": "seg-1:w3",
+              "text": "everyone",
+              "start_ms": 870,
+              "end_ms": 1098
+            },
+            {
+              "word_id": "seg-1:w4",
+              "text": "arrived",
+              "start_ms": 1110,
+              "end_ms": 1338
+            },
+            {
+              "word_id": "seg-1:w5",
+              "text": "on",
+              "start_ms": 1350,
+              "end_ms": 1578
+            },
+            {
+              "word_id": "seg-1:w6",
+              "text": "time.",
+              "start_ms": 1590,
+              "end_ms": 1830
+            }
+          ]
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 6,
+        "issued_at_ms": 2770,
+        "payload": {
+          "partial_id": "p-2",
+          "text": "I asked once",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 7,
+        "issued_at_ms": 4650,
+        "payload": {
+          "segment_id": "seg-2",
+          "text": "I asked once, and I am tired of being ignored.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "transcript.timed",
+      "session_id": "saved-demo",
+      "seq": 8,
+      "issued_at_ms": 4760,
+      "payload": {
+        "segment_id": "seg-2",
+        "language_code": "en",
+        "words": [
+          {
+            "word_id": "seg-2:w0",
+            "text": "I",
+            "start_ms": 2500,
+            "end_ms": 2685
+          },
+          {
+            "word_id": "seg-2:w0",
+            "text": "asked",
+            "start_ms": 2697,
+            "end_ms": 2882
+          },
+          {
+            "word_id": "seg-2:w2",
+            "text": "once,",
+            "start_ms": 2894,
+            "end_ms": 3079
+          },
+          {
+            "word_id": "seg-2:w3",
+            "text": "and",
+            "start_ms": 3091,
+            "end_ms": 3276
+          },
+          {
+            "word_id": "seg-2:w4",
+            "text": "I",
+            "start_ms": 3288,
+            "end_ms": 3473
+          },
+          {
+            "word_id": "seg-2:w5",
+            "text": "am",
+            "start_ms": 3485,
+            "end_ms": 3670
+          },
+          {
+            "word_id": "seg-2:w6",
+            "text": "tired",
+            "start_ms": 3682,
+            "end_ms": 3867
+          },
+          {
+            "word_id": "seg-2:w7",
+            "text": "of",
+            "start_ms": 3879,
+            "end_ms": 4064
+          },
+          {
+            "word_id": "seg-2:w8",
+            "text": "being",
+            "start_ms": 4076,
+            "end_ms": 4261
+          },
+          {
+            "word_id": "seg-2:w9",
+            "text": "ignored.",
+            "start_ms": 4273,
+            "end_ms": 4470
+          }
+        ]
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "referenced_word_missing",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-demo",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 3,
+        "issued_at_ms": 960,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record, everyone arrived",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 4,
+        "issued_at_ms": 2200,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "For the record, everyone arrived on time.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-demo",
+        "seq": 5,
+        "issued_at_ms": 2420,
+        "payload": {
+          "segment_id": "seg-1",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-1:w0",
+              "text": "For",
+              "start_ms": 150,
+              "end_ms": 378
+            },
+            {
+              "word_id": "seg-1:w1",
+              "text": "the",
+              "start_ms": 390,
+              "end_ms": 618
+            },
+            {
+              "word_id": "seg-1:w2",
+              "text": "record,",
+              "start_ms": 630,
+              "end_ms": 858
+            },
+            {
+              "word_id": "seg-1:w3",
+              "text": "everyone",
+              "start_ms": 870,
+              "end_ms": 1098
+            },
+            {
+              "word_id": "seg-1:w4",
+              "text": "arrived",
+              "start_ms": 1110,
+              "end_ms": 1338
+            },
+            {
+              "word_id": "seg-1:w5",
+              "text": "on",
+              "start_ms": 1350,
+              "end_ms": 1578
+            },
+            {
+              "word_id": "seg-1:w6",
+              "text": "time.",
+              "start_ms": 1590,
+              "end_ms": 1830
+            }
+          ]
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 6,
+        "issued_at_ms": 2770,
+        "payload": {
+          "partial_id": "p-2",
+          "text": "I asked once",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 7,
+        "issued_at_ms": 4650,
+        "payload": {
+          "segment_id": "seg-2",
+          "text": "I asked once, and I am tired of being ignored.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-demo",
+        "seq": 8,
+        "issued_at_ms": 4760,
+        "payload": {
+          "segment_id": "seg-2",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-2:w0",
+              "text": "I",
+              "start_ms": 2500,
+              "end_ms": 2685
+            },
+            {
+              "word_id": "seg-2:w1",
+              "text": "asked",
+              "start_ms": 2697,
+              "end_ms": 2882
+            },
+            {
+              "word_id": "seg-2:w2",
+              "text": "once,",
+              "start_ms": 2894,
+              "end_ms": 3079
+            },
+            {
+              "word_id": "seg-2:w3",
+              "text": "and",
+              "start_ms": 3091,
+              "end_ms": 3276
+            },
+            {
+              "word_id": "seg-2:w4",
+              "text": "I",
+              "start_ms": 3288,
+              "end_ms": 3473
+            },
+            {
+              "word_id": "seg-2:w5",
+              "text": "am",
+              "start_ms": 3485,
+              "end_ms": 3670
+            },
+            {
+              "word_id": "seg-2:w6",
+              "text": "tired",
+              "start_ms": 3682,
+              "end_ms": 3867
+            },
+            {
+              "word_id": "seg-2:w7",
+              "text": "of",
+              "start_ms": 3879,
+              "end_ms": 4064
+            },
+            {
+              "word_id": "seg-2:w8",
+              "text": "being",
+              "start_ms": 4076,
+              "end_ms": 4261
+            },
+            {
+              "word_id": "seg-2:w9",
+              "text": "ignored.",
+              "start_ms": 4273,
+              "end_ms": 4470
+            }
+          ]
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "emotion.updated",
+      "session_id": "saved-demo",
+      "seq": 9,
+      "issued_at_ms": 5000,
+      "payload": {
+        "annotation_id": "a-seg-2",
+        "revision": 1,
+        "segment_id": "seg-2",
+        "start_word_id": "seg-2:w3",
+        "end_word_id": "seg-2:w99",
+        "start_ms": 3091,
+        "end_ms": 4470,
+        "state": "draft",
+        "primary": "angry",
+        "secondary": null,
+        "scores": {
+          "angry": 0.54,
+          "disgusted": 0.03,
+          "fearful": 0.05,
+          "happy": 0.04,
+          "neutral": 0.12,
+          "other": 0.03,
+          "sad": 0.15,
+          "surprised": 0.03,
+          "unknown": 0.01
+        },
+        "support": 0.54,
+        "visual_intensity": 0.8533,
+        "opacity": 0.4328,
+        "shape": "jagged",
+        "color": "#DC4545",
+        "blend": null
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "ghost_segment",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-demo",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 3,
+        "issued_at_ms": 960,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record, everyone arrived",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 4,
+        "issued_at_ms": 2200,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "For the record, everyone arrived on time.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-demo",
+        "seq": 5,
+        "issued_at_ms": 2420,
+        "payload": {
+          "segment_id": "seg-1",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-1:w0",
+              "text": "For",
+              "start_ms": 150,
+              "end_ms": 378
+            },
+            {
+              "word_id": "seg-1:w1",
+              "text": "the",
+              "start_ms": 390,
+              "end_ms": 618
+            },
+            {
+              "word_id": "seg-1:w2",
+              "text": "record,",
+              "start_ms": 630,
+              "end_ms": 858
+            },
+            {
+              "word_id": "seg-1:w3",
+              "text": "everyone",
+              "start_ms": 870,
+              "end_ms": 1098
+            },
+            {
+              "word_id": "seg-1:w4",
+              "text": "arrived",
+              "start_ms": 1110,
+              "end_ms": 1338
+            },
+            {
+              "word_id": "seg-1:w5",
+              "text": "on",
+              "start_ms": 1350,
+              "end_ms": 1578
+            },
+            {
+              "word_id": "seg-1:w6",
+              "text": "time.",
+              "start_ms": 1590,
+              "end_ms": 1830
+            }
+          ]
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 6,
+        "issued_at_ms": 2770,
+        "payload": {
+          "partial_id": "p-2",
+          "text": "I asked once",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 7,
+        "issued_at_ms": 4650,
+        "payload": {
+          "segment_id": "seg-2",
+          "text": "I asked once, and I am tired of being ignored.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "transcript.timed",
+      "session_id": "saved-demo",
+      "seq": 8,
+      "issued_at_ms": 4760,
+      "payload": {
+        "segment_id": "seg-missing",
+        "language_code": "en",
+        "words": [
+          {
+            "word_id": "seg-2:w0",
+            "text": "I",
+            "start_ms": 2500,
+            "end_ms": 2685
+          },
+          {
+            "word_id": "seg-2:w1",
+            "text": "asked",
+            "start_ms": 2697,
+            "end_ms": 2882
+          },
+          {
+            "word_id": "seg-2:w2",
+            "text": "once,",
+            "start_ms": 2894,
+            "end_ms": 3079
+          },
+          {
+            "word_id": "seg-2:w3",
+            "text": "and",
+            "start_ms": 3091,
+            "end_ms": 3276
+          },
+          {
+            "word_id": "seg-2:w4",
+            "text": "I",
+            "start_ms": 3288,
+            "end_ms": 3473
+          },
+          {
+            "word_id": "seg-2:w5",
+            "text": "am",
+            "start_ms": 3485,
+            "end_ms": 3670
+          },
+          {
+            "word_id": "seg-2:w6",
+            "text": "tired",
+            "start_ms": 3682,
+            "end_ms": 3867
+          },
+          {
+            "word_id": "seg-2:w7",
+            "text": "of",
+            "start_ms": 3879,
+            "end_ms": 4064
+          },
+          {
+            "word_id": "seg-2:w8",
+            "text": "being",
+            "start_ms": 4076,
+            "end_ms": 4261
+          },
+          {
+            "word_id": "seg-2:w9",
+            "text": "ignored.",
+            "start_ms": 4273,
+            "end_ms": 4470
+          }
+        ]
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "duplicate_commit",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-demo",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 3,
+        "issued_at_ms": 960,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record, everyone arrived",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 4,
+        "issued_at_ms": 2200,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "For the record, everyone arrived on time.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-demo",
+        "seq": 5,
+        "issued_at_ms": 2420,
+        "payload": {
+          "segment_id": "seg-1",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-1:w0",
+              "text": "For",
+              "start_ms": 150,
+              "end_ms": 378
+            },
+            {
+              "word_id": "seg-1:w1",
+              "text": "the",
+              "start_ms": 390,
+              "end_ms": 618
+            },
+            {
+              "word_id": "seg-1:w2",
+              "text": "record,",
+              "start_ms": 630,
+              "end_ms": 858
+            },
+            {
+              "word_id": "seg-1:w3",
+              "text": "everyone",
+              "start_ms": 870,
+              "end_ms": 1098
+            },
+            {
+              "word_id": "seg-1:w4",
+              "text": "arrived",
+              "start_ms": 1110,
+              "end_ms": 1338
+            },
+            {
+              "word_id": "seg-1:w5",
+              "text": "on",
+              "start_ms": 1350,
+              "end_ms": 1578
+            },
+            {
+              "word_id": "seg-1:w6",
+              "text": "time.",
+              "start_ms": 1590,
+              "end_ms": 1830
+            }
+          ]
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 6,
+        "issued_at_ms": 2770,
+        "payload": {
+          "partial_id": "p-2",
+          "text": "I asked once",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 7,
+        "issued_at_ms": 4650,
+        "payload": {
+          "segment_id": "seg-2",
+          "text": "I asked once, and I am tired of being ignored.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "transcript.committed",
+      "session_id": "saved-demo",
+      "seq": 8,
+      "issued_at_ms": 4690,
+      "payload": {
+        "segment_id": "seg-2",
+        "text": "I asked once, and I am tired of being ignored.",
+        "timing_state": "pending",
+        "language_code": null
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "blend_disagrees",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-mixed",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-mixed",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "I cannot believe",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-mixed",
+        "seq": 3,
+        "issued_at_ms": 1910,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "I cannot believe how this ended.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-mixed",
+        "seq": 4,
+        "issued_at_ms": 1980,
+        "payload": {
+          "segment_id": "seg-1",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-1:w0",
+              "text": "I",
+              "start_ms": 120,
+              "end_ms": 348
+            },
+            {
+              "word_id": "seg-1:w1",
+              "text": "cannot",
+              "start_ms": 360,
+              "end_ms": 588
+            },
+            {
+              "word_id": "seg-1:w2",
+              "text": "believe",
+              "start_ms": 600,
+              "end_ms": 828
+            },
+            {
+              "word_id": "seg-1:w3",
+              "text": "how",
+              "start_ms": 840,
+              "end_ms": 1068
+            },
+            {
+              "word_id": "seg-1:w4",
+              "text": "this",
+              "start_ms": 1080,
+              "end_ms": 1308
+            },
+            {
+              "word_id": "seg-1:w5",
+              "text": "ended.",
+              "start_ms": 1320,
+              "end_ms": 1560
+            }
+          ]
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "emotion.updated",
+      "session_id": "saved-mixed",
+      "seq": 5,
+      "issued_at_ms": 2470,
+      "payload": {
+        "annotation_id": "a-mixed",
+        "revision": 1,
+        "segment_id": "seg-1",
+        "start_word_id": "seg-1:w0",
+        "end_word_id": "seg-1:w5",
+        "start_ms": 120,
+        "end_ms": 1560,
+        "state": "draft",
+        "primary": "angry",
+        "secondary": "sad",
+        "scores": {
+          "angry": 0.46,
+          "disgusted": 0.02,
+          "fearful": 0.03,
+          "happy": 0.02,
+          "neutral": 0.06,
+          "other": 0.02,
+          "sad": 0.35,
+          "surprised": 0.03,
+          "unknown": 0.01
+        },
+        "support": 0.46,
+        "visual_intensity": 0.48,
+        "opacity": 0.3776,
+        "shape": "jagged",
+        "color": "#DC4545",
+        "blend": {
+          "secondary": "happy",
+          "weight": 0.43
+        }
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "out_of_order_seq",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-demo",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 3,
+        "issued_at_ms": 960,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record, everyone arrived",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 4,
+        "issued_at_ms": 2200,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "For the record, everyone arrived on time.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "transcript.partial",
+      "session_id": "saved-demo",
+      "seq": 2,
+      "issued_at_ms": 420,
+      "payload": {
+        "partial_id": "p-1",
+        "text": "For the record",
+        "language_code": "en"
+      }
+    },
+    "expected": "ignore_duplicate_or_older"
+  },
+  {
+    "id": "stale_revision",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-demo",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 3,
+        "issued_at_ms": 960,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record, everyone arrived",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 4,
+        "issued_at_ms": 2200,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "For the record, everyone arrived on time.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-demo",
+        "seq": 5,
+        "issued_at_ms": 2420,
+        "payload": {
+          "segment_id": "seg-1",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-1:w0",
+              "text": "For",
+              "start_ms": 150,
+              "end_ms": 378
+            },
+            {
+              "word_id": "seg-1:w1",
+              "text": "the",
+              "start_ms": 390,
+              "end_ms": 618
+            },
+            {
+              "word_id": "seg-1:w2",
+              "text": "record,",
+              "start_ms": 630,
+              "end_ms": 858
+            },
+            {
+              "word_id": "seg-1:w3",
+              "text": "everyone",
+              "start_ms": 870,
+              "end_ms": 1098
+            },
+            {
+              "word_id": "seg-1:w4",
+              "text": "arrived",
+              "start_ms": 1110,
+              "end_ms": 1338
+            },
+            {
+              "word_id": "seg-1:w5",
+              "text": "on",
+              "start_ms": 1350,
+              "end_ms": 1578
+            },
+            {
+              "word_id": "seg-1:w6",
+              "text": "time.",
+              "start_ms": 1590,
+              "end_ms": 1830
+            }
+          ]
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 6,
+        "issued_at_ms": 2770,
+        "payload": {
+          "partial_id": "p-2",
+          "text": "I asked once",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 7,
+        "issued_at_ms": 4650,
+        "payload": {
+          "segment_id": "seg-2",
+          "text": "I asked once, and I am tired of being ignored.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-demo",
+        "seq": 8,
+        "issued_at_ms": 4760,
+        "payload": {
+          "segment_id": "seg-2",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-2:w0",
+              "text": "I",
+              "start_ms": 2500,
+              "end_ms": 2685
+            },
+            {
+              "word_id": "seg-2:w1",
+              "text": "asked",
+              "start_ms": 2697,
+              "end_ms": 2882
+            },
+            {
+              "word_id": "seg-2:w2",
+              "text": "once,",
+              "start_ms": 2894,
+              "end_ms": 3079
+            },
+            {
+              "word_id": "seg-2:w3",
+              "text": "and",
+              "start_ms": 3091,
+              "end_ms": 3276
+            },
+            {
+              "word_id": "seg-2:w4",
+              "text": "I",
+              "start_ms": 3288,
+              "end_ms": 3473
+            },
+            {
+              "word_id": "seg-2:w5",
+              "text": "am",
+              "start_ms": 3485,
+              "end_ms": 3670
+            },
+            {
+              "word_id": "seg-2:w6",
+              "text": "tired",
+              "start_ms": 3682,
+              "end_ms": 3867
+            },
+            {
+              "word_id": "seg-2:w7",
+              "text": "of",
+              "start_ms": 3879,
+              "end_ms": 4064
+            },
+            {
+              "word_id": "seg-2:w8",
+              "text": "being",
+              "start_ms": 4076,
+              "end_ms": 4261
+            },
+            {
+              "word_id": "seg-2:w9",
+              "text": "ignored.",
+              "start_ms": 4273,
+              "end_ms": 4470
+            }
+          ]
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "emotion.updated",
+        "session_id": "saved-demo",
+        "seq": 9,
+        "issued_at_ms": 5000,
+        "payload": {
+          "annotation_id": "a-seg-2",
+          "revision": 1,
+          "segment_id": "seg-2",
+          "start_word_id": "seg-2:w3",
+          "end_word_id": "seg-2:w9",
+          "start_ms": 3091,
+          "end_ms": 4470,
+          "state": "draft",
+          "primary": "angry",
+          "secondary": null,
+          "scores": {
+            "angry": 0.54,
+            "disgusted": 0.03,
+            "fearful": 0.05,
+            "happy": 0.04,
+            "neutral": 0.12,
+            "other": 0.03,
+            "sad": 0.15,
+            "surprised": 0.03,
+            "unknown": 0.01
+          },
+          "support": 0.54,
+          "visual_intensity": 0.8533,
+          "opacity": 0.4328,
+          "shape": "jagged",
+          "color": "#DC4545",
+          "blend": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "emotion.updated",
+        "session_id": "saved-demo",
+        "seq": 10,
+        "issued_at_ms": 5550,
+        "payload": {
+          "annotation_id": "a-seg-2",
+          "revision": 2,
+          "segment_id": "seg-2",
+          "start_word_id": "seg-2:w3",
+          "end_word_id": "seg-2:w9",
+          "start_ms": 3091,
+          "end_ms": 4470,
+          "state": "draft",
+          "primary": "angry",
+          "secondary": null,
+          "scores": {
+            "angry": 0.7,
+            "disgusted": 0.04,
+            "fearful": 0.04,
+            "happy": 0.03,
+            "neutral": 0.09,
+            "other": 0.02,
+            "sad": 0.04,
+            "surprised": 0.03,
+            "unknown": 0.01
+          },
+          "support": 0.7,
+          "visual_intensity": 1,
+          "opacity": 0.5431,
+          "shape": "jagged",
+          "color": "#DC4545",
+          "blend": null
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "emotion.updated",
+      "session_id": "saved-demo",
+      "seq": 11,
+      "issued_at_ms": 5580,
+      "payload": {
+        "annotation_id": "a-seg-2",
+        "revision": 1,
+        "segment_id": "seg-2",
+        "start_word_id": "seg-2:w3",
+        "end_word_id": "seg-2:w9",
+        "start_ms": 3091,
+        "end_ms": 4470,
+        "state": "draft",
+        "primary": "angry",
+        "secondary": null,
+        "scores": {
+          "angry": 0.54,
+          "disgusted": 0.03,
+          "fearful": 0.05,
+          "happy": 0.04,
+          "neutral": 0.12,
+          "other": 0.03,
+          "sad": 0.15,
+          "surprised": 0.03,
+          "unknown": 0.01
+        },
+        "support": 0.54,
+        "visual_intensity": 0.8533,
+        "opacity": 0.4328,
+        "shape": "jagged",
+        "color": "#DC4545",
+        "blend": null
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "update_after_final",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-demo",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 3,
+        "issued_at_ms": 960,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record, everyone arrived",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 4,
+        "issued_at_ms": 2200,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "For the record, everyone arrived on time.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-demo",
+        "seq": 5,
+        "issued_at_ms": 2420,
+        "payload": {
+          "segment_id": "seg-1",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-1:w0",
+              "text": "For",
+              "start_ms": 150,
+              "end_ms": 378
+            },
+            {
+              "word_id": "seg-1:w1",
+              "text": "the",
+              "start_ms": 390,
+              "end_ms": 618
+            },
+            {
+              "word_id": "seg-1:w2",
+              "text": "record,",
+              "start_ms": 630,
+              "end_ms": 858
+            },
+            {
+              "word_id": "seg-1:w3",
+              "text": "everyone",
+              "start_ms": 870,
+              "end_ms": 1098
+            },
+            {
+              "word_id": "seg-1:w4",
+              "text": "arrived",
+              "start_ms": 1110,
+              "end_ms": 1338
+            },
+            {
+              "word_id": "seg-1:w5",
+              "text": "on",
+              "start_ms": 1350,
+              "end_ms": 1578
+            },
+            {
+              "word_id": "seg-1:w6",
+              "text": "time.",
+              "start_ms": 1590,
+              "end_ms": 1830
+            }
+          ]
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 6,
+        "issued_at_ms": 2770,
+        "payload": {
+          "partial_id": "p-2",
+          "text": "I asked once",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 7,
+        "issued_at_ms": 4650,
+        "payload": {
+          "segment_id": "seg-2",
+          "text": "I asked once, and I am tired of being ignored.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-demo",
+        "seq": 8,
+        "issued_at_ms": 4760,
+        "payload": {
+          "segment_id": "seg-2",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-2:w0",
+              "text": "I",
+              "start_ms": 2500,
+              "end_ms": 2685
+            },
+            {
+              "word_id": "seg-2:w1",
+              "text": "asked",
+              "start_ms": 2697,
+              "end_ms": 2882
+            },
+            {
+              "word_id": "seg-2:w2",
+              "text": "once,",
+              "start_ms": 2894,
+              "end_ms": 3079
+            },
+            {
+              "word_id": "seg-2:w3",
+              "text": "and",
+              "start_ms": 3091,
+              "end_ms": 3276
+            },
+            {
+              "word_id": "seg-2:w4",
+              "text": "I",
+              "start_ms": 3288,
+              "end_ms": 3473
+            },
+            {
+              "word_id": "seg-2:w5",
+              "text": "am",
+              "start_ms": 3485,
+              "end_ms": 3670
+            },
+            {
+              "word_id": "seg-2:w6",
+              "text": "tired",
+              "start_ms": 3682,
+              "end_ms": 3867
+            },
+            {
+              "word_id": "seg-2:w7",
+              "text": "of",
+              "start_ms": 3879,
+              "end_ms": 4064
+            },
+            {
+              "word_id": "seg-2:w8",
+              "text": "being",
+              "start_ms": 4076,
+              "end_ms": 4261
+            },
+            {
+              "word_id": "seg-2:w9",
+              "text": "ignored.",
+              "start_ms": 4273,
+              "end_ms": 4470
+            }
+          ]
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "emotion.updated",
+        "session_id": "saved-demo",
+        "seq": 9,
+        "issued_at_ms": 5000,
+        "payload": {
+          "annotation_id": "a-seg-2",
+          "revision": 1,
+          "segment_id": "seg-2",
+          "start_word_id": "seg-2:w3",
+          "end_word_id": "seg-2:w9",
+          "start_ms": 3091,
+          "end_ms": 4470,
+          "state": "draft",
+          "primary": "angry",
+          "secondary": null,
+          "scores": {
+            "angry": 0.54,
+            "disgusted": 0.03,
+            "fearful": 0.05,
+            "happy": 0.04,
+            "neutral": 0.12,
+            "other": 0.03,
+            "sad": 0.15,
+            "surprised": 0.03,
+            "unknown": 0.01
+          },
+          "support": 0.54,
+          "visual_intensity": 0.8533,
+          "opacity": 0.4328,
+          "shape": "jagged",
+          "color": "#DC4545",
+          "blend": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "emotion.updated",
+        "session_id": "saved-demo",
+        "seq": 10,
+        "issued_at_ms": 5550,
+        "payload": {
+          "annotation_id": "a-seg-2",
+          "revision": 2,
+          "segment_id": "seg-2",
+          "start_word_id": "seg-2:w3",
+          "end_word_id": "seg-2:w9",
+          "start_ms": 3091,
+          "end_ms": 4470,
+          "state": "draft",
+          "primary": "angry",
+          "secondary": null,
+          "scores": {
+            "angry": 0.7,
+            "disgusted": 0.04,
+            "fearful": 0.04,
+            "happy": 0.03,
+            "neutral": 0.09,
+            "other": 0.02,
+            "sad": 0.04,
+            "surprised": 0.03,
+            "unknown": 0.01
+          },
+          "support": 0.7,
+          "visual_intensity": 1,
+          "opacity": 0.5431,
+          "shape": "jagged",
+          "color": "#DC4545",
+          "blend": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 11,
+        "issued_at_ms": 5650,
+        "payload": {
+          "partial_id": "p-3",
+          "text": "I waited by the door",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "emotion.finalized",
+        "session_id": "saved-demo",
+        "seq": 12,
+        "issued_at_ms": 6450,
+        "payload": {
+          "annotation_id": "a-seg-2",
+          "revision": 3
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "emotion.updated",
+      "session_id": "saved-demo",
+      "seq": 13,
+      "issued_at_ms": 6520,
+      "payload": {
+        "annotation_id": "a-seg-2",
+        "revision": 4,
+        "segment_id": "seg-2",
+        "start_word_id": "seg-2:w3",
+        "end_word_id": "seg-2:w9",
+        "start_ms": 3091,
+        "end_ms": 4470,
+        "state": "draft",
+        "primary": "angry",
+        "secondary": null,
+        "scores": {
+          "angry": 0.7,
+          "disgusted": 0.04,
+          "fearful": 0.04,
+          "happy": 0.03,
+          "neutral": 0.09,
+          "other": 0.02,
+          "sad": 0.04,
+          "surprised": 0.03,
+          "unknown": 0.01
+        },
+        "support": 0.7,
+        "visual_intensity": 1,
+        "opacity": 0.5431,
+        "shape": "jagged",
+        "color": "#DC4545",
+        "blend": null
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "restore_hidden_after_final",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-retraction",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-retraction",
+        "seq": 2,
+        "issued_at_ms": 510,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "I will try",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-retraction",
+        "seq": 3,
+        "issued_at_ms": 1760,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "I will try again tomorrow.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.timed",
+        "session_id": "saved-retraction",
+        "seq": 4,
+        "issued_at_ms": 1860,
+        "payload": {
+          "segment_id": "seg-1",
+          "language_code": "en",
+          "words": [
+            {
+              "word_id": "seg-1:w0",
+              "text": "I",
+              "start_ms": 100,
+              "end_ms": 352
+            },
+            {
+              "word_id": "seg-1:w1",
+              "text": "will",
+              "start_ms": 364,
+              "end_ms": 616
+            },
+            {
+              "word_id": "seg-1:w2",
+              "text": "try",
+              "start_ms": 628,
+              "end_ms": 880
+            },
+            {
+              "word_id": "seg-1:w3",
+              "text": "again",
+              "start_ms": 892,
+              "end_ms": 1144
+            },
+            {
+              "word_id": "seg-1:w4",
+              "text": "tomorrow.",
+              "start_ms": 1156,
+              "end_ms": 1420
+            }
+          ]
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "emotion.updated",
+        "session_id": "saved-retraction",
+        "seq": 5,
+        "issued_at_ms": 2200,
+        "payload": {
+          "annotation_id": "a-faint",
+          "revision": 1,
+          "segment_id": "seg-1",
+          "start_word_id": "seg-1:w0",
+          "end_word_id": "seg-1:w4",
+          "start_ms": 100,
+          "end_ms": 1420,
+          "state": "draft",
+          "primary": "sad",
+          "secondary": null,
+          "scores": {
+            "angry": 0.13,
+            "disgusted": 0.05,
+            "fearful": 0.11,
+            "happy": 0.07,
+            "neutral": 0.2,
+            "other": 0.04,
+            "sad": 0.32,
+            "surprised": 0.06,
+            "unknown": 0.02
+          },
+          "support": 0.32,
+          "visual_intensity": 0.4933,
+          "opacity": 0.2059,
+          "shape": "rounded",
+          "color": "#478CD4",
+          "blend": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "emotion.retracted",
+        "session_id": "saved-retraction",
+        "seq": 6,
+        "issued_at_ms": 2690,
+        "payload": {
+          "annotation_id": "a-faint",
+          "revision": 2
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "emotion.finalized",
+        "session_id": "saved-retraction",
+        "seq": 7,
+        "issued_at_ms": 3470,
+        "payload": {
+          "annotation_id": "a-faint",
+          "revision": 3
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "emotion.updated",
+      "session_id": "saved-retraction",
+      "seq": 8,
+      "issued_at_ms": 3600,
+      "payload": {
+        "annotation_id": "a-faint",
+        "revision": 4,
+        "segment_id": "seg-1",
+        "start_word_id": "seg-1:w0",
+        "end_word_id": "seg-1:w4",
+        "start_ms": 100,
+        "end_ms": 1420,
+        "state": "draft",
+        "primary": "sad",
+        "secondary": null,
+        "scores": {
+          "angry": 0.13,
+          "disgusted": 0.05,
+          "fearful": 0.11,
+          "happy": 0.07,
+          "neutral": 0.2,
+          "other": 0.04,
+          "sad": 0.32,
+          "surprised": 0.06,
+          "unknown": 0.02
+        },
+        "support": 0.32,
+        "visual_intensity": 0.4933,
+        "opacity": 0.2059,
+        "shape": "rounded",
+        "color": "#478CD4",
+        "blend": null
+      }
+    },
+    "expected": "reject"
+  },
+  {
+    "id": "different_session",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-demo",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 3,
+        "issued_at_ms": 960,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record, everyone arrived",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 4,
+        "issued_at_ms": 2200,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "For the record, everyone arrived on time.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "transcript.timed",
+      "session_id": "s-other",
+      "seq": 5,
+      "issued_at_ms": 2420,
+      "payload": {
+        "segment_id": "seg-1",
+        "language_code": "en",
+        "words": [
+          {
+            "word_id": "seg-1:w0",
+            "text": "For",
+            "start_ms": 150,
+            "end_ms": 378
+          },
+          {
+            "word_id": "seg-1:w1",
+            "text": "the",
+            "start_ms": 390,
+            "end_ms": 618
+          },
+          {
+            "word_id": "seg-1:w2",
+            "text": "record,",
+            "start_ms": 630,
+            "end_ms": 858
+          },
+          {
+            "word_id": "seg-1:w3",
+            "text": "everyone",
+            "start_ms": 870,
+            "end_ms": 1098
+          },
+          {
+            "word_id": "seg-1:w4",
+            "text": "arrived",
+            "start_ms": 1110,
+            "end_ms": 1338
+          },
+          {
+            "word_id": "seg-1:w5",
+            "text": "on",
+            "start_ms": 1350,
+            "end_ms": 1578
+          },
+          {
+            "word_id": "seg-1:w6",
+            "text": "time.",
+            "start_ms": 1590,
+            "end_ms": 1830
+          }
+        ]
+      }
+    },
+    "expected": "ignore_session"
+  },
+  {
+    "id": "unknown_type_compatible",
+    "layer": "stream",
+    "prefix": [
+      {
+        "schema_version": "1.0",
+        "type": "session.status",
+        "session_id": "saved-demo",
+        "seq": 1,
+        "issued_at_ms": 0,
+        "payload": {
+          "state": "listening",
+          "mode": "replay",
+          "scribe": "not_required",
+          "emotion_model": "not_required",
+          "detail": null
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 2,
+        "issued_at_ms": 420,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.partial",
+        "session_id": "saved-demo",
+        "seq": 3,
+        "issued_at_ms": 960,
+        "payload": {
+          "partial_id": "p-1",
+          "text": "For the record, everyone arrived",
+          "language_code": "en"
+        }
+      },
+      {
+        "schema_version": "1.0",
+        "type": "transcript.committed",
+        "session_id": "saved-demo",
+        "seq": 4,
+        "issued_at_ms": 2200,
+        "payload": {
+          "segment_id": "seg-1",
+          "text": "For the record, everyone arrived on time.",
+          "timing_state": "pending",
+          "language_code": null
+        }
+      }
+    ],
+    "event": {
+      "schema_version": "1.0",
+      "type": "future.notice",
+      "session_id": "saved-demo",
+      "seq": 5,
+      "issued_at_ms": 2420,
+      "payload": {
+        "detail": "example"
+      }
+    },
+    "expected": "ignore_unknown_type"
+  }
+]

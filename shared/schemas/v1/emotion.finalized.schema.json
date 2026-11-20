@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/emotion.finalized.schema.json",
+  "title": "emotion.finalized",
+  "allOf": [
+    {
+      "$ref": "event-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "emotion.finalized"
+        },
+        "payload": {
+          "$ref": "common.schema.json#/$defs/annotationRevision"
+        }
+      }
+    }
+  ]
+}

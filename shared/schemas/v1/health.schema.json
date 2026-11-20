@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/health.schema.json",
+  "title": "Local process liveness response",
+  "type": "object",
+  "required": [
+    "status",
+    "schema_version"
+  ],
+  "properties": {
+    "status": {
+      "const": "ok"
+    },
+    "schema_version": {
+      "const": "1.0"
+    }
+  },
+  "additionalProperties": false
+}

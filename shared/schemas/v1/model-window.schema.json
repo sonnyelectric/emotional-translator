@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/model-window.schema.json",
+  "title": "JSON example shape for one normalized inference window; the live boundary is in-process",
+  "type": "object",
+  "required": [
+    "epoch",
+    "start_sample",
+    "end_sample",
+    "score_kind",
+    "scores"
+  ],
+  "properties": {
+    "epoch": {
+      "$ref": "common.schema.json#/$defs/nonnegativeInteger"
+    },
+    "start_sample": {
+      "$ref": "common.schema.json#/$defs/nonnegativeInteger"
+    },
+    "end_sample": {
+      "$ref": "common.schema.json#/$defs/positiveInteger"
+    },
+    "score_kind": {
+      "enum": [
+        "probability_like",
+        "comparable"
+      ]
+    },
+    "scores": {
+      "$ref": "common.schema.json#/$defs/scores"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/transcript.committed.schema.json",
+  "title": "transcript.committed",
+  "allOf": [
+    {
+      "$ref": "event-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "transcript.committed"
+        },
+        "payload": {
+          "type": "object",
+          "required": [
+            "segment_id",
+            "text",
+            "timing_state",
+            "language_code"
+          ],
+          "properties": {
+            "segment_id": {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            "text": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "timing_state": {
+              "const": "pending"
+            },
+            "language_code": {
+              "$ref": "common.schema.json#/$defs/languageCode"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

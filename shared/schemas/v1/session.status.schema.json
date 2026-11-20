@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/session.status.schema.json",
+  "title": "session.status",
+  "allOf": [
+    {
+      "$ref": "event-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "session.status"
+        },
+        "payload": {
+          "type": "object",
+          "required": [
+            "state",
+            "mode",
+            "scribe",
+            "emotion_model",
+            "detail"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "idle",
+                "connecting",
+                "listening",
+                "paused",
+                "stopping",
+                "stopped",
+                "error"
+              ]
+            },
+            "mode": {
+              "enum": [
+                "live",
+                "replay"
+              ]
+            },
+            "scribe": {
+              "enum": [
+                "disconnected",
+                "connecting",
+                "connected",
+                "reconnecting",
+                "failed",
+                "not_required"
+              ]
+            },
+            "emotion_model": {
+              "enum": [
+                "loading",
+                "ready",
+                "degraded",
+                "failed",
+                "not_required"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sample_rate_hz": {
+              "const": 16000
+            },
+            "channels": {
+              "const": 1
+            },
+            "sample_format": {
+              "const": "s16le"
+            }
+          },
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "live"
+                  },
+                  "state": {
+                    "const": "listening"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "sample_rate_hz",
+                  "channels",
+                  "sample_format"
+                ]
+              },
+              "else": {
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": [
+                        "sample_rate_hz"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "channels"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "sample_format"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "replay"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "scribe": {
+                    "const": "not_required"
+                  },
+                  "emotion_model": {
+                    "const": "not_required"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "scribe": {
+                    "not": {
+                      "const": "not_required"
+                    }
+                  },
+                  "emotion_model": {
+                    "not": {
+                      "const": "not_required"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

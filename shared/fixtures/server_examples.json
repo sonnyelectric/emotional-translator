@@ -1,0 +1,180 @@
+[
+  {
+    "schema_version": "1.0",
+    "type": "session.status",
+    "session_id": "s-live",
+    "seq": 1,
+    "issued_at_ms": 0,
+    "payload": {
+      "state": "connecting",
+      "mode": "live",
+      "scribe": "connecting",
+      "emotion_model": "loading",
+      "detail": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.status",
+    "session_id": "s-live",
+    "seq": 2,
+    "issued_at_ms": 320,
+    "payload": {
+      "state": "listening",
+      "mode": "live",
+      "scribe": "connected",
+      "emotion_model": "ready",
+      "detail": null,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_format": "s16le"
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.status",
+    "session_id": "s-live",
+    "seq": 3,
+    "issued_at_ms": 400,
+    "payload": {
+      "state": "paused",
+      "mode": "live",
+      "scribe": "disconnected",
+      "emotion_model": "ready",
+      "detail": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.status",
+    "session_id": "s-live",
+    "seq": 4,
+    "issued_at_ms": 580,
+    "payload": {
+      "state": "connecting",
+      "mode": "live",
+      "scribe": "connecting",
+      "emotion_model": "ready",
+      "detail": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.status",
+    "session_id": "s-live",
+    "seq": 5,
+    "issued_at_ms": 900,
+    "payload": {
+      "state": "listening",
+      "mode": "live",
+      "scribe": "connected",
+      "emotion_model": "ready",
+      "detail": null,
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_format": "s16le"
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.warning",
+    "session_id": "s-live",
+    "seq": 6,
+    "issued_at_ms": 950,
+    "payload": {
+      "code": "EMOTION_INFERENCE_SLOW",
+      "message": "Emotion annotations are delayed; transcription continues.",
+      "recoverable": true
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.status",
+    "session_id": "s-live",
+    "seq": 7,
+    "issued_at_ms": 1080,
+    "payload": {
+      "state": "stopping",
+      "mode": "live",
+      "scribe": "connected",
+      "emotion_model": "ready",
+      "detail": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.status",
+    "session_id": "s-live",
+    "seq": 8,
+    "issued_at_ms": 1200,
+    "payload": {
+      "state": "stopped",
+      "mode": "live",
+      "scribe": "disconnected",
+      "emotion_model": "ready",
+      "detail": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.reset",
+    "session_id": "s-reset",
+    "seq": 1,
+    "issued_at_ms": 0,
+    "payload": {}
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.status",
+    "session_id": "s-reset",
+    "seq": 2,
+    "issued_at_ms": 1,
+    "payload": {
+      "state": "idle",
+      "mode": "live",
+      "scribe": "disconnected",
+      "emotion_model": "loading",
+      "detail": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.status",
+    "session_id": "s-failed",
+    "seq": 1,
+    "issued_at_ms": 0,
+    "payload": {
+      "state": "connecting",
+      "mode": "live",
+      "scribe": "connecting",
+      "emotion_model": "loading",
+      "detail": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.error",
+    "session_id": "s-failed",
+    "seq": 2,
+    "issued_at_ms": 120,
+    "payload": {
+      "code": "SCRIBE_AUTH",
+      "message": "Check the backend ElevenLabs credential.",
+      "recoverable": false
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.status",
+    "session_id": "s-failed",
+    "seq": 3,
+    "issued_at_ms": 121,
+    "payload": {
+      "state": "error",
+      "mode": "live",
+      "scribe": "failed",
+      "emotion_model": "failed",
+      "detail": "Live transcription could not start."
+    }
+  }
+]

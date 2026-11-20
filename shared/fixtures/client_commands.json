@@ -1,0 +1,29 @@
+[
+  {
+    "schema_version": "1.0",
+    "type": "session.start",
+    "payload": {
+      "mode": "live"
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.pause",
+    "payload": {}
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.resume",
+    "payload": {}
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.stop",
+    "payload": {}
+  },
+  {
+    "schema_version": "1.0",
+    "type": "session.reset",
+    "payload": {}
+  }
+]

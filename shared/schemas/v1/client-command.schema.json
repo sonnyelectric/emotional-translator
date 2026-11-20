@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/client-command.schema.json",
+  "title": "Browser to backend commands, v1",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "type",
+        "payload"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "session.start"
+        },
+        "payload": {
+          "type": "object",
+          "required": [
+            "mode"
+          ],
+          "properties": {
+            "mode": {
+              "const": "live"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "type",
+        "payload"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "enum": [
+            "session.pause",
+            "session.resume",
+            "session.stop",
+            "session.reset"
+          ]
+        },
+        "payload": {
+          "type": "object",
+          "required": [],
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

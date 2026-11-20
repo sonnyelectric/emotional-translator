@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/replay-manifest.schema.json",
+  "title": "Saved-result replay manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source",
+    "default_fixture",
+    "fixtures"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "source": {
+      "const": "saved_result"
+    },
+    "default_fixture": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,63}$"
+    },
+    "fixtures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "file",
+          "case_name",
+          "duration_ms",
+          "provenance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,63}$"
+          },
+          "file": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,63}\\.jsonl$"
+          },
+          "case_name": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "duration_ms": {
+            "$ref": "common.schema.json#/$defs/positiveInteger"
+          },
+          "provenance": {
+            "enum": [
+              "synthetic_example",
+              "recorded_result"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}

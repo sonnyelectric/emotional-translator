@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/emotion.updated.schema.json",
+  "title": "emotion.updated",
+  "allOf": [
+    {
+      "$ref": "event-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "emotion.updated"
+        },
+        "payload": {
+          "$ref": "common.schema.json#/$defs/annotation"
+        }
+      }
+    }
+  ]
+}

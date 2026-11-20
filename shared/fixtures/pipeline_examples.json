@@ -1,0 +1,155 @@
+{
+  "sample_rate_hz": 16000,
+  "windows": [
+    {
+      "epoch": 0,
+      "start_sample": 0,
+      "end_sample": 32000,
+      "score_kind": "probability_like",
+      "scores": {
+        "angry": 0.7,
+        "disgusted": 0.04,
+        "fearful": 0.04,
+        "happy": 0.03,
+        "neutral": 0.09,
+        "other": 0.02,
+        "sad": 0.04,
+        "surprised": 0.03,
+        "unknown": 0.01
+      }
+    },
+    {
+      "epoch": 0,
+      "start_sample": 16000,
+      "end_sample": 48000,
+      "score_kind": "probability_like",
+      "scores": {
+        "angry": 0.07,
+        "disgusted": 0.02,
+        "fearful": 0.06,
+        "happy": 0.03,
+        "neutral": 0.09,
+        "other": 0.03,
+        "sad": 0.66,
+        "surprised": 0.03,
+        "unknown": 0.01
+      }
+    },
+    {
+      "epoch": 0,
+      "start_sample": 32000,
+      "end_sample": 64000,
+      "score_kind": "probability_like",
+      "scores": {
+        "angry": 0.02,
+        "disgusted": 0.02,
+        "fearful": 0.03,
+        "happy": 0.04,
+        "neutral": 0.78,
+        "other": 0.03,
+        "sad": 0.04,
+        "surprised": 0.02,
+        "unknown": 0.02
+      }
+    }
+  ],
+  "classification_cases": [
+    {
+      "id": "neutral",
+      "scores": {
+        "angry": 0.02,
+        "disgusted": 0.02,
+        "fearful": 0.03,
+        "happy": 0.04,
+        "neutral": 0.78,
+        "other": 0.03,
+        "sad": 0.04,
+        "surprised": 0.02,
+        "unknown": 0.02
+      },
+      "expected": "suppress"
+    },
+    {
+      "id": "faint_sad",
+      "scores": {
+        "angry": 0.13,
+        "disgusted": 0.05,
+        "fearful": 0.11,
+        "happy": 0.07,
+        "neutral": 0.2,
+        "other": 0.04,
+        "sad": 0.32,
+        "surprised": 0.06,
+        "unknown": 0.02
+      },
+      "expected": "faint",
+      "primary": "sad"
+    },
+    {
+      "id": "strong_sad",
+      "scores": {
+        "angry": 0.07,
+        "disgusted": 0.02,
+        "fearful": 0.06,
+        "happy": 0.03,
+        "neutral": 0.09,
+        "other": 0.03,
+        "sad": 0.66,
+        "surprised": 0.03,
+        "unknown": 0.01
+      },
+      "expected": "standard",
+      "primary": "sad"
+    },
+    {
+      "id": "mixed_anger_sad",
+      "scores": {
+        "angry": 0.46,
+        "disgusted": 0.02,
+        "fearful": 0.03,
+        "happy": 0.02,
+        "neutral": 0.06,
+        "other": 0.02,
+        "sad": 0.35,
+        "surprised": 0.03,
+        "unknown": 0.01
+      },
+      "expected": "blend",
+      "primary": "angry",
+      "secondary": "sad"
+    }
+  ],
+  "binary_frame_cases": [
+    {
+      "frame_bytes": 640,
+      "expected": "accept",
+      "samples": 320
+    },
+    {
+      "frame_bytes": 1280,
+      "expected": "accept",
+      "samples": 640
+    },
+    {
+      "frame_bytes": 3200,
+      "expected": "accept",
+      "samples": 1600
+    },
+    {
+      "frame_bytes": 0,
+      "expected": "reject"
+    },
+    {
+      "frame_bytes": 638,
+      "expected": "reject"
+    },
+    {
+      "frame_bytes": 1281,
+      "expected": "reject"
+    },
+    {
+      "frame_bytes": 3202,
+      "expected": "reject"
+    }
+  ]
+}

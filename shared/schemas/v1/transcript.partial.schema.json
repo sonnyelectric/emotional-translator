@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/transcript.partial.schema.json",
+  "title": "transcript.partial",
+  "allOf": [
+    {
+      "$ref": "event-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "transcript.partial"
+        },
+        "payload": {
+          "type": "object",
+          "required": [
+            "partial_id",
+            "text",
+            "language_code"
+          ],
+          "properties": {
+            "partial_id": {
+              "$ref": "common.schema.json#/$defs/id"
+            },
+            "text": {
+              "type": "string"
+            },
+            "language_code": {
+              "$ref": "common.schema.json#/$defs/languageCode"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

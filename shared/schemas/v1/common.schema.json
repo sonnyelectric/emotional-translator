@@ -1,0 +1,463 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/common.schema.json",
+  "title": "Shared wire structures",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9:._-]{0,127}$"
+    },
+    "code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]{0,95}$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "languageCode": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 35
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "nonnegativeInteger": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "audioMs": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "unitInterval": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "visibleCategory": {
+      "enum": [
+        "angry",
+        "disgusted",
+        "fearful",
+        "happy",
+        "sad",
+        "surprised"
+      ]
+    },
+    "scores": {
+      "type": "object",
+      "required": [
+        "angry",
+        "disgusted",
+        "fearful",
+        "happy",
+        "neutral",
+        "other",
+        "sad",
+        "surprised",
+        "unknown"
+      ],
+      "properties": {
+        "angry": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "disgusted": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "fearful": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "happy": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "neutral": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "other": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "sad": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "surprised": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "unknown": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "word": {
+      "type": "object",
+      "required": [
+        "word_id",
+        "text",
+        "start_ms",
+        "end_ms"
+      ],
+      "properties": {
+        "word_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start_ms": {
+          "$ref": "common.schema.json#/$defs/audioMs"
+        },
+        "end_ms": {
+          "$ref": "common.schema.json#/$defs/audioMs"
+        }
+      },
+      "additionalProperties": false
+    },
+    "annotation": {
+      "type": "object",
+      "required": [
+        "annotation_id",
+        "revision",
+        "segment_id",
+        "start_word_id",
+        "end_word_id",
+        "start_ms",
+        "end_ms",
+        "state",
+        "primary",
+        "secondary",
+        "scores",
+        "support",
+        "visual_intensity",
+        "opacity",
+        "shape",
+        "color",
+        "blend"
+      ],
+      "properties": {
+        "annotation_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "revision": {
+          "$ref": "common.schema.json#/$defs/positiveInteger"
+        },
+        "segment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "start_word_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "end_word_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "start_ms": {
+          "$ref": "common.schema.json#/$defs/audioMs"
+        },
+        "end_ms": {
+          "$ref": "common.schema.json#/$defs/audioMs"
+        },
+        "state": {
+          "const": "draft"
+        },
+        "primary": {
+          "$ref": "common.schema.json#/$defs/visibleCategory"
+        },
+        "secondary": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/visibleCategory"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scores": {
+          "$ref": "common.schema.json#/$defs/scores"
+        },
+        "support": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "visual_intensity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "opacity": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "shape": {
+          "enum": [
+            "jagged",
+            "wavy",
+            "trembling",
+            "radial",
+            "rounded",
+            "burst"
+          ]
+        },
+        "color": {
+          "enum": [
+            "#DC4545",
+            "#68A876",
+            "#9975D8",
+            "#EDB94B",
+            "#478CD4",
+            "#EF9858"
+          ]
+        },
+        "blend": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "secondary",
+                "weight"
+              ],
+              "properties": {
+                "secondary": {
+                  "$ref": "common.schema.json#/$defs/visibleCategory"
+                },
+                "weight": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 0.5
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "primary": {
+                "const": "angry"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "shape": {
+                "const": "jagged"
+              },
+              "color": {
+                "const": "#DC4545"
+              },
+              "secondary": {
+                "not": {
+                  "const": "angry"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "primary": {
+                "const": "disgusted"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "shape": {
+                "const": "wavy"
+              },
+              "color": {
+                "const": "#68A876"
+              },
+              "secondary": {
+                "not": {
+                  "const": "disgusted"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "primary": {
+                "const": "fearful"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "shape": {
+                "const": "trembling"
+              },
+              "color": {
+                "const": "#9975D8"
+              },
+              "secondary": {
+                "not": {
+                  "const": "fearful"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "primary": {
+                "const": "happy"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "shape": {
+                "const": "radial"
+              },
+              "color": {
+                "const": "#EDB94B"
+              },
+              "secondary": {
+                "not": {
+                  "const": "happy"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "primary": {
+                "const": "sad"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "shape": {
+                "const": "rounded"
+              },
+              "color": {
+                "const": "#478CD4"
+              },
+              "secondary": {
+                "not": {
+                  "const": "sad"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "primary": {
+                "const": "surprised"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "shape": {
+                "const": "burst"
+              },
+              "color": {
+                "const": "#EF9858"
+              },
+              "secondary": {
+                "not": {
+                  "const": "surprised"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "secondary": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "blend": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "blend": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "annotationRevision": {
+      "type": "object",
+      "required": [
+        "annotation_id",
+        "revision"
+      ],
+      "properties": {
+        "annotation_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "revision": {
+          "$ref": "common.schema.json#/$defs/positiveInteger"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

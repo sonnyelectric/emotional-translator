@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emotional-translator.invalid/schemas/v1/http-error.schema.json",
+  "title": "Local API error response",
+  "type": "object",
+  "required": [
+    "code",
+    "message"
+  ],
+  "properties": {
+    "code": {
+      "$ref": "common.schema.json#/$defs/code"
+    },
+    "message": {
+      "$ref": "common.schema.json#/$defs/message"
+    }
+  },
+  "additionalProperties": false
+}
