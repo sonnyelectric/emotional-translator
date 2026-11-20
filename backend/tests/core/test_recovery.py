@@ -242,3 +242,21 @@ def test_midstream_permanent_failure_preserves_transcript(code, expected):
         assert rec.next()["payload"]["state"] == "error"
     assert adapter.opened == [1]
     assert [e["payload"]["text"] for e in rec.of("transcript.committed")] == ["Hello there friend."]
+
+
+def test_resume_waits_for_pause_cleanup():
+    adapter = FakeScribeAdapter()
+    with live_client(make_runtime(adapter)) as client, client.websocket_connect("/ws/v1/session",
+                                                                                 headers=ORIGIN) as ws:
+        rec = Recorder(ws)
+        ws.send_text(command("session.start"))
+        rec.until_type("session.status", state="listening")
+        send_frames(ws, 5)
+        ws.send_text(command("session.pause"))
+        ws.send_text(command("session.resume"))
+        rec.until_type("session.status", state="listening")
+        send_frames(ws, 5)
+        ws.send_text(command("session.stop"))
+        rec.until_type("session.status", state="stopped")
+    assert adapter.opened == [1, 2]
+    assert adapter.streams[0].closed and adapter.streams[1].received == 5 * 640

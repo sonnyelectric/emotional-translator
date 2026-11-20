@@ -252,6 +252,7 @@ class LiveSession:
         self.warned: set[str] = set()
         self.audio_warned_state: str | None = None
         self._connect_task: asyncio.Task | None = None
+        self._pause_task: asyncio.Task | None = None
         self._tasks: set[asyncio.Task] = set()
         self._ticker: asyncio.Task | None = None
         self._closed = False
@@ -291,12 +292,19 @@ class LiveSession:
 
     def pause(self) -> None:
         self.state = "paused"  # audio after this point is not accepted
-        self._spawn(self._pause(), "session-pause")
+        self._pause_task = self._spawn(self._pause(), "session-pause")
 
     def resume(self) -> None:
         self.state, self.scribe = "connecting", "connecting"
         self.status()
-        self._connect_task = self._spawn(self._connect(first_delay=False), "scribe-connect")
+        self._connect_task = self._spawn(self._resume(self._pause_task), "scribe-connect")
+
+    async def _resume(self, pause_task: asyncio.Task | None) -> None:
+        if pause_task is not None:
+            with contextlib.suppress(asyncio.CancelledError, Exception):
+                await asyncio.shield(pause_task)  # old epoch fully closed before a new one opens
+        self.scribe = "connecting"
+        await self._connect(first_delay=False)
 
     def stop(self) -> None:
         previous = self.state
@@ -492,7 +500,7 @@ class LiveSession:
         number = self.epoch.number if self.epoch else None
         await self._close_link(self.settings.session_drain_timeout_ms / 1000, windows=False)
         self._fence_outstanding(number)
-        if self.state == "paused":
+        if self.state == "paused":  # an early Resume supersedes the acknowledgement
             self.status()
 
     async def _stop(self, previous: str) -> None:
