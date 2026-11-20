@@ -500,3 +500,14 @@
 [data-reduced-motion] .et-word {
   transition: none;
 }
+
+/* Possible sarcasm: wording and vocal cue disagree. Marked by underline plus the text
+   badge, never by color alone. Display-only; it never changes clouds or scores. */
+.et-seg--sarcasm .et-word,
+.et-seg--sarcasm > span {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: #d9b25f;
+}

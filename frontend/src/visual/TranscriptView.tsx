@@ -134,7 +134,12 @@ export function TranscriptView({
         {segments.map((seg) => {
           const mm = settings.mismatch ? mismatch?.get(seg.segment_id) : undefined;
           return (
-            <p className="et-seg" key={seg.segment_id} data-segment-id={seg.segment_id}>
+            <p
+              className={mm?.differs ? 'et-seg et-seg--sarcasm' : 'et-seg'}
+              key={seg.segment_id}
+              data-segment-id={seg.segment_id}
+              data-sarcasm={mm?.differs ? 'possible' : undefined}
+            >
               {seg.words && seg.words.length ? (
                 groupWords(seg.words, wordOwner).map((g, gi) => {
                   const lead = gi > 0 ? ' ' : null;

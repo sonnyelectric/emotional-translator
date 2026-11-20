@@ -5,14 +5,14 @@ import { mismatchTooltip } from './valence';
 export function MismatchBadge({ result }: { result: MismatchResult }) {
   const tip = mismatchTooltip(result);
   return (
-    <span className="et-mismatch" tabIndex={0} role="note" aria-label={`Words and voice differ. ${tip}.`}>
+    <span className="et-mismatch" tabIndex={0} role="note" aria-label={`Possible sarcasm: words and voice differ. ${tip}.`}>
       <span aria-hidden="true" className="et-mismatch__icon">
         {'⇄'}
       </span>
-      Words and voice differ
+      Possible sarcasm
       <span className="et-mismatch__tip" role="tooltip">
         {tip}
-        <small>A gap between wording and vocal cue can mean many things, including model error. It does not mean sarcasm.</small>
+        <small>The wording and the vocal cue point in opposite directions, which often signals sarcasm. It can also be model error.</small>
       </span>
     </span>
   );

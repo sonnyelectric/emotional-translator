@@ -84,7 +84,7 @@ export function PhraseInspector({ annotation: a, onClose, phraseText, mismatch, 
           ))}
         </tbody>
       </table>
-      {mismatch?.differs ? <p className="et-inspector__mm">Words and voice differ. {mismatchTooltip(mismatch)}.</p> : null}
+      {mismatch?.differs ? <p className="et-inspector__mm">Possible sarcasm: words and voice differ. {mismatchTooltip(mismatch)}.</p> : null}
     </aside>
   );
 }
