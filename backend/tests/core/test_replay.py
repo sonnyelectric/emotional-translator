@@ -78,6 +78,11 @@ def test_health(client):
     assert client.get("/healthz").json() == {"schema_version": "1.0", "status": "ok"}
 
 
+def test_root_answers_hosting_health_checks(client):
+    response = client.get("/")
+    assert response.status_code == 200 and response.json()["status"] == "ok"
+
+
 def test_replay_mode_does_not_import_live_runtime():
     # Fresh interpreter: other test modules (tests/audio_ai) import the live runtime at
     # collection time, so this process's sys.modules cannot answer the question.

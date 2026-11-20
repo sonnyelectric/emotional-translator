@@ -25,6 +25,9 @@ if ! grep -qE '^ELEVENLABS_API_KEY=.+' backend/.env 2>/dev/null && [[ -z "${ELEV
     echo "      Tuning mode (http://localhost:5173/?tune=1) and Replay still work."
 fi
 
+# Local demo: keep the dev tuning page (?tune=1) available. Public deployments leave it off.
+export ENABLE_TUNE_ROUTE="${ENABLE_TUNE_ROUTE:-1}"
+
 pids=()
 cleanup() { for p in "${pids[@]:-}"; do kill "$p" 2>/dev/null || true; done; wait 2>/dev/null || true; }
 trap cleanup EXIT INT TERM

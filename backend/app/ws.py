@@ -27,9 +27,11 @@ LEGAL = {
 
 
 class Connection:
-    def __init__(self, websocket: WebSocket, runtime: LiveRuntime | None, live_mode: bool):
+    def __init__(self, websocket: WebSocket, runtime: LiveRuntime | None, live_mode: bool,
+                 starting: bool = False):
         self.ws = websocket
         self.runtime = runtime
+        self.starting = starting
         self.live_mode = live_mode
         self.outbox: asyncio.Queue[str | int] = asyncio.Queue()
         self.emitter: Emitter | None = None
@@ -138,10 +140,14 @@ class Connection:
         emitter = self.emitter if self.local_state == "idle" else self.bind()
         runtime = self.runtime
         error = None
-        if not self.live_mode or runtime is None:
+        if self.live_mode and runtime is None and self.starting:
+            error = "LIVE_STARTING"
+        elif not self.live_mode or runtime is None:
             error = "LIVE_NOT_CONFIGURED"
         elif runtime.setup_error:
             error = runtime.setup_error
+        elif (remaining := runtime.daily_remaining()) is not None and remaining <= 0:
+            error = "LIVE_DAILY_LIMIT_REACHED"
         if error is None:
             session = LiveSession(runtime, emitter, self.close)
             if runtime.acquire(session):
@@ -185,9 +191,10 @@ async def session_endpoint(websocket: WebSocket) -> None:
     app = websocket.app
     origin = websocket.headers.get("origin")
     # Browsers always send Origin; reject a foreign one before accepting the upgrade.
-    if origin is not None and origin != app.state.settings.allowed_origin:
+    if origin is not None and not app.state.settings.origin_allowed(origin):
         await websocket.close(code=POLICY_CLOSE)
         return
     await websocket.accept()
-    connection = Connection(websocket, app.state.live_runtime, app.state.settings.mode == "live")
+    connection = Connection(websocket, app.state.live_runtime, app.state.settings.mode == "live",
+                            starting=getattr(app.state, "live_starting", False))
     await connection.run()

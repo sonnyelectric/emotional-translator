@@ -12,7 +12,13 @@ from backend.app.config import Settings
 from backend.app.main import create_app
 
 from fakes_model import ANGRY, NEUTRAL, FakeScorer, FakeWorker
-from live_helpers import FRAME, ORIGIN, live_client, make_runtime, send_frames
+from live_helpers import FRAME, ORIGIN, live_client, live_settings, send_frames
+from live_helpers import make_runtime as _make_runtime
+
+
+def make_runtime(**kwargs):
+    # The tuning route is mounted only with ENABLE_TUNE_ROUTE=1.
+    return _make_runtime(settings=live_settings(enable_tune_route=True), **kwargs)
 
 
 def receive(ws, kind: str, limit: int = 200) -> dict:
@@ -101,3 +107,11 @@ def test_tune_frames_before_model_ready_warn_once():
 
 async def _no_start() -> None:
     return None
+
+
+def test_tune_route_absent_in_live_mode_unless_enabled():
+    runtime = _make_runtime()  # ENABLE_TUNE_ROUTE unset
+    with live_client(runtime) as client:
+        with pytest.raises(WebSocketDisconnect):
+            with client.websocket_connect("/ws/dev/tune", headers=ORIGIN) as ws:
+                ws.receive_text()

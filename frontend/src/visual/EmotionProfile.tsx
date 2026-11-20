@@ -128,7 +128,7 @@ export function EmotionProfile({ latest, settings }: EmotionProfileProps) {
         </ul>
         {latest ? (
           <p className="et-mix__neutral">
-            Neutral {pct(latest.neutral)} · other {pct(latest.other + latest.unknown)}
+            Neutral {pct(latest.neutral)}, other {pct(latest.other + latest.unknown)}
           </p>
         ) : null}
       </div>

@@ -3,3 +3,5 @@ dist/
 dist-replay/
 test-results/
 playwright-report/
+.vercel
+.env*

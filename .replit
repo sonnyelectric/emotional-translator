@@ -1,0 +1,15 @@
+# Replit config for the live backend (FastAPI + emotion2vec+ Large on CPU + ElevenLabs Scribe).
+# The frontend is hosted separately (Vercel). Setup steps: docs/DEPLOY_REPLIT.md.
+modules = ["python-3.11"]
+run = "bash scripts/replit_start.sh"
+
+[deployment]
+build = ["bash", "scripts/replit_build.sh"]
+run = ["bash", "scripts/replit_start.sh"]
+# Reserved VM. Choosing "Reserved VM" in the Publishing tool sets the same value.
+deploymentTarget = "gce"
+
+# The app listens on 0.0.0.0:8000; deployments require externalPort 80.
+[[ports]]
+localPort = 8000
+externalPort = 80

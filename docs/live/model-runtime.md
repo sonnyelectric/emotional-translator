@@ -8,6 +8,7 @@ uv pip install --python .venv-live/bin/python -r backend/requirements-live.lock
 `backend/requirements-live.lock` is the freeze of the venv that ran the model (core lock included). Key pins: funasr 1.4.27, modelscope 1.40.3, torch 2.15.0, torchaudio 2.11.1, numpy 2.4.6. Install order mattered not; everything resolved in one `uv pip install` of the core lock + funasr modelscope torch torchaudio numpy psutil. numpy 2.x works with funasr 1.4.27.
 
 ## Weights
+`scripts/fetch_model.sh` performs this download (skips present files, verifies model.pt sha256 `be501a01…784da4`). Linux x86_64 CPU install: `backend/requirements-live-linux.txt` (same pins; torch/torchaudio `+cpu` from the PyTorch CPU index).
 Download once from Hugging Face `emotion2vec/emotion2vec_plus_large` rev 6c303ba987b86b93193de93e34bb2b077a6bedc4 into `~/model-cache/emotion2vec_plus_large/` (config.yaml, configuration.json, tokens.txt, model.pt 1,945,790,254 B). Never commit weights. `Emotion2vecLargeScorer(cache_dir=...)` loads that directory (or `<cache_dir>/emotion2vec_plus_large`); with `cache_dir=None` it uses env `EMOTION_MODEL_CACHE_DIR`, else falls back to the hub id (network). Loading from the local directory needs no network. Loading prints a harmless "miss key in ckpt ... decoder" warning (pre-training decoder not in the checkpoint; "All keys matched successfully" is also logged).
 
 ## Call and observed return (REAL)

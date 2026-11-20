@@ -14,6 +14,7 @@ import logging
 import time
 import uuid
 from collections.abc import Callable
+from datetime import datetime, timezone
 from typing import Any
 
 from pydantic import ValidationError
@@ -58,11 +59,16 @@ WARNING_MESSAGES = {
     "INVALID_STATE": "That command is not available in the current session state.",
     "INVALID_AUDIO_FRAME": "An audio frame had an invalid size and was dropped.",
     "AUDIO_NOT_ACCEPTED": "Audio is accepted only while listening; the frame was dropped.",
+    "SESSION_TIME_LIMIT": "This live session reached its time limit and was stopped. Reset, then Start again.",
+    "LIVE_DAILY_LIMIT_REACHED": "Today's live time on this server is used up, so the session was stopped. "
+                                "Replay still works.",
 }
 ERROR_MESSAGES = {
     **FATAL_MESSAGES,
     "LIVE_NOT_CONFIGURED": "Live mode is not configured on this backend. Replay remains available.",
+    "LIVE_STARTING": "The live server is still loading its models. Try Start again in a minute.",
     "LIVE_SESSION_BUSY": "Another live session is already active on this backend.",
+    "LIVE_DAILY_LIMIT_REACHED": "Today's live time on this server is used up. Replay still works.",
 }
 
 
@@ -115,8 +121,13 @@ class LiveRuntime:
         policy: ScorePolicy | None = None,
         setup_error: str | None = None,
         sleep: Callable[[float], Any] = asyncio.sleep,
+        wall_clock: Callable[[], float] = time.time,
     ):
         self.settings = settings
+        self.wall_clock = wall_clock
+        # LIVE_DAILY_MAX_SECONDS accounting (in memory, per UTC day).
+        self.daily_day: str | None = None
+        self.daily_used_seconds = 0.0
         self.scribe_adapter = scribe_adapter
         self.worker = worker
         self.scheduler_factory = scheduler_factory
@@ -187,6 +198,23 @@ class LiveRuntime:
     def release(self, session: LiveSession) -> None:
         if self.lease is session:
             self.lease = None
+
+    def _roll_day(self) -> None:
+        today = datetime.fromtimestamp(self.wall_clock(), timezone.utc).date().isoformat()
+        if today != self.daily_day:
+            self.daily_day, self.daily_used_seconds = today, 0.0
+
+    def daily_remaining(self) -> float | None:
+        """Seconds of live time left today, or None when LIVE_DAILY_MAX_SECONDS is unset."""
+        cap = self.settings.live_daily_max_seconds
+        if cap is None:
+            return None
+        self._roll_day()
+        return max(0.0, cap - self.daily_used_seconds)
+
+    def charge(self, seconds: float) -> None:
+        self._roll_day()
+        self.daily_used_seconds += max(0.0, seconds)
 
     async def aclose(self) -> None:
         for task in self._tasks:
@@ -271,6 +299,7 @@ class LiveSession:
         self._tasks: set[asyncio.Task] = set()
         self._ticker: asyncio.Task | None = None
         self._closed = False
+        self.started_at: float | None = None  # monotonic; wall-clock live time is charged from here
         # RECORD_SESSION_EVENTS: record this session's emitted events (never audio) as a
         # replay fixture when it ends. Off unless the operator sets the flag.
         self.recorder: SessionRecorder | None = None
@@ -304,12 +333,26 @@ class LiveSession:
 
     # ---- commands ---------------------------------------------------------------
     def start(self) -> None:
+        self.started_at = time.monotonic()
+        limit, code = self.settings.session_max_seconds, "SESSION_TIME_LIMIT"
+        remaining = self.runtime.daily_remaining()
+        if remaining is not None and remaining < limit:
+            limit, code = remaining, "LIVE_DAILY_LIMIT_REACHED"
         self.state, self.scribe = "connecting", "connecting"
         self.status()
+        self._spawn(self._time_limit(limit, code), "session-time-limit")
         if not self.runtime.model_usable and self.runtime.model_state == "failed":
             self.warn("EMOTION_MODEL_UNAVAILABLE", once=True)
         self._ticker = self._spawn(self._tick_loop(), "phrase-ticker")
         self._connect_task = self._spawn(self._connect(first_delay=False), "scribe-connect")
+
+    async def _time_limit(self, seconds: float, code: str) -> None:
+        """SESSION_MAX_SECONDS / LIVE_DAILY_MAX_SECONDS: warn, then stop cleanly like session.stop."""
+        await asyncio.sleep(seconds)
+        if self.state in ("connecting", "listening", "paused"):
+            log.info("Live session %s stopped by %s after %.0f s", self.session_id, code, seconds)
+            self.warn(code)
+            self.stop()
 
     def pause(self) -> None:
         self.state = "paused"  # audio after this point is not accepted
@@ -570,6 +613,8 @@ class LiveSession:
         if self.scheduler is not None and hasattr(self.scheduler, "end_session"):
             self.scheduler.end_session(self.session_id)
         self.outstanding.clear()
+        if self.started_at is not None:
+            self.runtime.charge(time.monotonic() - self.started_at)
         self.runtime.release(self)
         if self.recorder is not None:
             if self.emitter.tap == self.recorder.record:
